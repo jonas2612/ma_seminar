@@ -482,7 +482,7 @@ def annotate_adata(
         adata.write(save_path)
     if save_path_plot is not None:
         logger.info(f"saving UMAP plot in {save_path_plot}")
-        sc.pl.umap(adata, color="cell_type_level_1")
+        sc.pl.umap(adata, color="cell_type_level1")
         plt.savefig(save_path_plot)
     return adata
 
