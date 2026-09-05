@@ -14,10 +14,17 @@ from scipy.stats import median_abs_deviation
 from urllib.request import urlopen
 
 import anndata as ad
+import decoupler as dc
 import numpy as np
 import pandas as pd
 import scanpy as sc
+import scipy.sparse as sp
 from tqdm import tqdm
+
+import rpy2.robjects as ro
+from rpy2.robjects import pandas2ri, numpy2ri
+from rpy2.robjects.conversion import localconverter
+from rpy2.robjects.packages import importr
 
 ad.settings.allow_write_nullable_strings = True
 
@@ -486,6 +493,127 @@ def annotate_adata(
         plt.savefig(save_path_plot)
     return adata
 
-# TODO
-def run_limma_dea():
-    ...
+def run_limma_dea(
+        adata: ad.AnnData,
+        cell_type,
+        condition_levels, 
+        logger: logging.Logger, 
+        sample_col = "sample", 
+        cell_type_col = "cell_type", 
+        condition_col="...", 
+        layer="counts", 
+        mode="sum",
+        covariate_cols=None,
+        min_cells=20,
+        min_samples_per_group=2
+        ):
+    R_DEA_SCRIPT = Path(
+        "./microarray_functions.R"
+    ).resolve()
+    ro.r["source"](
+        str(R_DEA_SCRIPT).replace("\\", "/"),
+        chdir=False,
+    )
+    importr("edgeR")
+    importr("limma")
+    run_pseudobulk_dea_r = ro.globalenv["run_pseudobulk_dea"]
+    adata_pb = dc.pp.pseudobulk(
+        adata, sample_col=sample_col,
+        groups_col=cell_type_col,
+        layer=layer,
+        mode=mode
+    )
+
+    sample_condition = adata.obs[[sample_col, condition_col]].dropna().drop_duplicates()
+    condition_lookup = sample_condition.drop_duplicates(subset=sample_col).set_index(sample_col)[condition_col]
+    if "psbulk_n_cells" in adata_pb.obs.columns:
+        adata_pb.obs["n_cells"] = adata_pb.obs["psbulk_n_cells"]
+    elif "psbulk_n_cells" not in adata_pb.obs.columns:
+        n_cells_lookup = (
+            adata.obs
+            .groupby([sample_col, cell_type_col], observed=True)
+            .size()
+            .rename("n_cells")
+        )
+
+        adata_pb.obs["n_cells"] = [
+            n_cells_lookup.get((sample, cell_type), np.nan)
+            for sample, cell_type in zip(
+                adata_pb.obs[sample_col],
+                adata_pb.obs[cell_type_col],
+            )
+        ]
+
+    covariate_cols = list(covariate_cols or [])
+    keep = (
+        adata_pb.obs[condition_col].astype(str).eq(str(cell_type)) 
+        & adata_pb.obs["n_cells"].ge(min_cells)
+        & adata_pb.obs[condition_col].isin(condition_levels)
+    )
+    adata_pb_ct = adata_pb[keep].copy()
+
+    meta = adata_pb_ct.obs[[sample_col, cell_type_col, condition_levels, "n_cells", *covariate_cols]].copy()
+    meta.index = meta.index.astype(str)
+
+    n_bio_replicates = (
+        meta.groupby(condition_col, observed=True)[sample_col]
+        .nunique()
+        .reindex(condition_levels, fill_value=0)
+    )
+
+    if sp.issparse(adata_pb_ct.X):
+        counts = adata_pb_ct.X.toarray().T
+    else:
+        counts = np.asarray(adata_pb_ct.X).T
+
+    with localconverter(ro.default_converter + pandas2ri.converter + numpy2ri.converter):
+        r_meta = ro.conversion.py2rpy(meta)
+        r_counts = ro.conversion.py2rpy(counts)
+
+    r_gene_ids = ro.StrVector(adata_pb_ct.var_names.astype(str).tolist())
+    r_pb_ids = ro.StrVector(meta.index.tolist())
+
+    ro.r["rownames"](r_counts, r_gene_ids)
+    ro.r["colnames"](r_counts, r_pb_ids)
+    ro.r["rownames"](r_meta, r_pb_ids)
+
+    # Passing None creates R NULL.
+    r_covariates = (
+        ro.StrVector(covariate_cols)
+        if covariate_cols
+        else ro.NULL
+    )
+
+    r_fit = run_pseudobulk_dea_r(
+        r_counts,
+        r_meta,
+        group_col=condition_col,
+        group_levels=ro.StrVector(list(condition_levels)),
+        contrast_str=ro.NULL,
+        covariate_cols=r_covariates,
+        p_adjust_method="BH",
+        min_samples_per_group=int(min_samples_per_group),
+        robust=True,
+    )
+
+    with localconverter(ro.default_converter + pandas2ri.converter):
+        results = ro.conversion.rpy2py(r_fit.rx2("results"))
+
+    results = pd.DataFrame(results)
+    if "gene" not in results.columns:
+        results.insert(0, "gene", list(r_fit.rx2("results").rownames))
+
+    results["cell_type"] = str(cell_type)
+    results["contrast"] = str(r_fit.rx2("contrast")[0])
+    results["n_samples_reference"] = int(
+        n_bio_replicates.loc[condition_levels[0]]
+    )
+    results["n_samples_test"] = int(
+        n_bio_replicates.loc[condition_levels[1]]
+    )
+
+    return results.sort_values(
+        ["adj.P.Val", "P.Value"],
+        ascending=True,
+        kind="stable",
+    ).reset_index(drop=True)
