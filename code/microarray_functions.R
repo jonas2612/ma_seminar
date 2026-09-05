@@ -2383,7 +2383,7 @@ combine_chip_datasets <- function(..., dataset_names = NULL) {
       gsub("^_|_$", "", x = _)
 
     # Correct known spelling variants after punctuation standardization.
-    standardized[standardized == "sample_doner"] <- "sample_donor"
+    standardized[standardized == "sample_nr"] <- "sample_nr"
 
     colnames(meta) <- standardized
 

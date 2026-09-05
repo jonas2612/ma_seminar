@@ -326,7 +326,7 @@ def read_raw_data(path: Path, metadata: pd.DataFrame, logger: logging.Logger, sa
         adata.obs[col] = meta.loc[:, col].values[0]
         if col in ["accession", "chip", "species", "sample", "cell_type", "location", "sex", "diet", "medication", "KO", "combined_condition", "Original Name"]:
             adata.obs[col] = adata.obs[col].astype(str)
-        elif col in ["age", "sample/doner"]:
+        elif col in ["age", "sample_nr"]:
             adata.obs[col] = adata.obs[col].astype("Int64")
         elif col in ["symptomatic_atherosclerosis"]:
             adata.obs[col] = adata.obs[col].astype(bool)
