@@ -472,8 +472,10 @@ def annotate_adata(
     subprocess.run(["rm", "-r", tmp_path], check=True)
     logger.info("Adding cell type annotation information.")
     new_obs = pd.concat(new_obs)
+    logger.debug(f"new obs: {new_obs.columns}")
     adata_obs = adata.obs.copy()
     adata_obs_new = adata_obs.merge(new_obs, left_index=True, right_index=True)
+    logger.debug(f"new adata obs: {adata_obs_new.columns}")
     adata.obs = adata_obs_new
     if save_path is not None:
         logger.info(f"saving adata in {save_path}")
