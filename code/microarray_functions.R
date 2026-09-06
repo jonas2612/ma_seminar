@@ -1493,7 +1493,7 @@ annotate_data <- function(data, install_missing = F) {
     return(set_feature_data(data, feature_data))
   } else if (supplier == "Affymetrix GeneChip miRNA 3" || supplier == "Affymetrix GeneChip miRNA 3.0") {
     annot_file <- file.path(
-      "..", "annotations", "GPL16384_miRNA-3_1-st-v1.annotations.20140513.csv"
+      "/usr/local/storage/data_microarray/annotations/", "GPL16384_miRNA-3_1-st-v1.annotations.20140513.csv"
     )
     if (!file.exists(annot_file))
       stop("Affymetrix miRNA 3.0 annotation csv not found.")
