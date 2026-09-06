@@ -504,6 +504,7 @@ def run_limma_dea(
         min_cells=20,
         min_samples_per_group=2
         ):
+    logger.info("start DEA")
     sample_to_condition = (
         adata.obs[[sample_col, condition_col]]
         .dropna()
@@ -557,6 +558,7 @@ def run_limma_dea(
         counts = np.asarray(adata_pb_ct.X).T
 
     counts = pd.DataFrame(counts, index=adata_pb_ct.var_names.astype(str), columns=meta.index)
+    logger.info(counts.head())
 
     r_script_path = Path(os.path.dirname(os.path.realpath(__file__))) / "scRNAseq_dea.R"
 
