@@ -5,6 +5,7 @@ import re
 import shutil
 import subprocess
 import tarfile
+import tempfile
 import zipfile
 
 from pathlib import Path
@@ -496,7 +497,8 @@ def annotate_adata(
 def run_limma_dea(
         adata: ad.AnnData,
         cell_type,
-        condition_levels, 
+        condition_levels,
+        output_path,
         logger: logging.Logger, 
         sample_col = "sample", 
         cell_type_col = "cell_type", 
@@ -507,25 +509,23 @@ def run_limma_dea(
         min_cells=20,
         min_samples_per_group=2
         ):
-    R_DEA_SCRIPT = Path(
-        "./microarray_functions.R"
-    ).resolve()
-    ro.r["source"](
-        str(R_DEA_SCRIPT).replace("\\", "/"),
-        chdir=False,
+    sample_to_condition = (
+        adata.obs[[sample_col, condition_col]]
+        .dropna()
+        .drop_duplicates()
     )
-    importr("edgeR")
-    importr("limma")
-    run_pseudobulk_dea_r = ro.globalenv["run_pseudobulk_dea"]
+    condition_lookup = (
+        sample_to_condition
+        .drop_duplicates(subset=sample_col)
+        .set_index(sample_col)[condition_col]
+    )
     adata_pb = dc.pp.pseudobulk(
         adata, sample_col=sample_col,
         groups_col=cell_type_col,
         layer=layer,
         mode=mode
     )
-
-    sample_condition = adata.obs[[sample_col, condition_col]].dropna().drop_duplicates()
-    condition_lookup = sample_condition.drop_duplicates(subset=sample_col).set_index(sample_col)[condition_col]
+    adata_pb.obs[condition_col] = adata_pb.obs[sample_col].map(condition_lookup)
     if "psbulk_n_cells" in adata_pb.obs.columns:
         adata_pb.obs["n_cells"] = adata_pb.obs["psbulk_n_cells"]
     elif "psbulk_n_cells" not in adata_pb.obs.columns:
@@ -546,71 +546,83 @@ def run_limma_dea(
 
     covariate_cols = list(covariate_cols or [])
     keep = (
-        adata_pb.obs[condition_col].astype(str).eq(str(cell_type)) 
+        adata_pb.obs[cell_type_col].astype(str).eq(str(cell_type)) 
         & adata_pb.obs["n_cells"].ge(min_cells)
         & adata_pb.obs[condition_col].isin(condition_levels)
     )
     adata_pb_ct = adata_pb[keep].copy()
 
-    meta = adata_pb_ct.obs[[sample_col, cell_type_col, condition_levels, "n_cells", *covariate_cols]].copy()
+    meta = adata_pb_ct.obs[[sample_col, cell_type_col, condition_col, "n_cells", *covariate_cols]].copy()
     meta.index = meta.index.astype(str)
-
-    n_bio_replicates = (
-        meta.groupby(condition_col, observed=True)[sample_col]
-        .nunique()
-        .reindex(condition_levels, fill_value=0)
-    )
+    meta.index.name = "pseudobulk_id"
 
     if sp.issparse(adata_pb_ct.X):
         counts = adata_pb_ct.X.toarray().T
     else:
         counts = np.asarray(adata_pb_ct.X).T
 
-    with localconverter(ro.default_converter + pandas2ri.converter + numpy2ri.converter):
-        r_meta = ro.conversion.py2rpy(meta)
-        r_counts = ro.conversion.py2rpy(counts)
+    counts = pd.DataFrame(counts, index=adata_pb_ct.var_names.astype(str), columns=meta.index)
 
-    r_gene_ids = ro.StrVector(adata_pb_ct.var_names.astype(str).tolist())
-    r_pb_ids = ro.StrVector(meta.index.tolist())
+    r_script_path = Path(os.path.dirname(os.path.realpath(__file__))) / "scRNAseq_dea.R"
 
-    ro.r["rownames"](r_counts, r_gene_ids)
-    ro.r["colnames"](r_counts, r_pb_ids)
-    ro.r["rownames"](r_meta, r_pb_ids)
+    with tempfile.TemporaryDirectory(prefix="limma_voom_", dir=Path(__file__).resolve().parent) as tmp_dir_name:
+        tmp_dir = Path(tmp_dir_name)
+        counts_file = tmp_dir / "pseudobulk_counts.tsv"
+        metadata_file = tmp_dir / "pseudobulk_metadata.tsv"
 
-    # Passing None creates R NULL.
-    r_covariates = (
-        ro.StrVector(covariate_cols)
-        if covariate_cols
-        else ro.NULL
-    )
+        counts.to_csv(
+            counts_file,
+            sep="\t",
+            index=True,
+            index_label="gene",
+        )
 
-    r_fit = run_pseudobulk_dea_r(
-        r_counts,
-        r_meta,
-        group_col=condition_col,
-        group_levels=ro.StrVector(list(condition_levels)),
-        contrast_str=ro.NULL,
-        covariate_cols=r_covariates,
-        p_adjust_method="BH",
-        min_samples_per_group=int(min_samples_per_group),
-        robust=True,
-    )
+        meta.to_csv(
+            metadata_file,
+            sep="\t",
+            index=True,
+            index_label="pseudobulk_id",
+        )
 
-    with localconverter(ro.default_converter + pandas2ri.converter):
-        results = ro.conversion.rpy2py(r_fit.rx2("results"))
+        cmd = [
+            "Rscript",
+            str(r_script_path),
+            "--counts", str(counts_file),
+            "--metadata", str(metadata_file),
+            "--output", str(output_path),
+            "--group-col", condition_col,
+            "--group-levels", ",".join(condition_levels),
+            "--celltype-col", cell_type_col,
+            "--celltype", str(cell_type),
+            "--n-cells-col", "n_cells",
+            "--min-cells", str(min_cells),
+            "--min-samples-per-group", str(min_samples_per_group),
+        ]
 
-    results = pd.DataFrame(results)
-    if "gene" not in results.columns:
-        results.insert(0, "gene", list(r_fit.rx2("results").rownames))
+        if covariate_cols:
+            cmd.extend([
+                "--covariates",
+                ",".join(covariate_cols),
+            ])
 
-    results["cell_type"] = str(cell_type)
-    results["contrast"] = str(r_fit.rx2("contrast")[0])
-    results["n_samples_reference"] = int(
-        n_bio_replicates.loc[condition_levels[0]]
-    )
-    results["n_samples_test"] = int(
-        n_bio_replicates.loc[condition_levels[1]]
-    )
+        try:
+            completed = subprocess.run(
+                cmd,
+                check=True,
+                text=True,
+                capture_output=True,
+            )
+        except subprocess.CalledProcessError as exc:
+            logger.error("Rscript command failed: %s", " ".join(cmd))
+            logger.error("Rscript stdout:\n%s", exc.stdout)
+            logger.error("Rscript stderr:\n%s", exc.stderr)
+            raise RuntimeError(
+                "limma-voom pseudobulk DEA failed. "
+                f"R stderr:\n{exc.stderr}"
+            ) from exc
+
+    
+    results = pd.read_csv(output_path, sep="\t")
 
     return results.sort_values(
         ["adj.P.Val", "P.Value"],
