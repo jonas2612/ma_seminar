@@ -381,9 +381,11 @@ def doublet_detection(adata: ad.AnnData, logger: logging.Logger, save_path: Opti
         adata.write(save_path)
     return adata
 
-def combine_samples(adatas: List[ad.AnnData], logger: logging.Logger, save_path: Optional[Path | str] = None) -> ad.AnnData:
-    logger.info("combining samples")
-    adata = ad.concat(adatas)
+def combine_samples(adatas: List[ad.AnnData], logger: logging.Logger, species="Human", save_path: Optional[Path | str] = None) -> ad.AnnData:
+    logger.info(f"identify samples of species {species}")
+    to_combine = [x for x in adatas if x.obs['species'].unique()[0]==species]
+    logger.info(f"combining {len(to_combine)} samples")
+    adata = ad.concat(to_combine)
     adata.obs_names_make_unique() #important for cell type annotation
     adata.layers['counts'] = adata.X.copy()
     if save_path is not None:
