@@ -541,6 +541,7 @@ def run_limma_dea(
         ]
 
     covariate_cols = list(covariate_cols or [])
+    adata_pb.obs[condition_col] = adata_pb.obs[condition_col].astype(str)
     keep = (
         adata_pb.obs[cell_type_col].astype(str).eq(str(cell_type)) 
         & adata_pb.obs["n_cells"].ge(min_cells)
