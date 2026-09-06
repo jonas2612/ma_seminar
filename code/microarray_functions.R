@@ -730,7 +730,9 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
       )
       id_col <- intersect(id_candidates, colnames(raw_data$genes))
       ids <- trimws(as.character(raw_data$genes[[id_col[1L]]]))
-      rownames(raw_data$E) <- ids
+      feature_ids <- make.unique(ids, sep = "__dup")
+      rownames(raw_data$E) <- feature_ids
+      rownames(raw_data$genes) <- feature_ids
       raw_data$targets <- make_targets(meta, matched_files, data_dir)
     }
     else if (length(matrix_files) != 0) {
@@ -756,7 +758,9 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
       )
       id_col <- intersect(id_candidates, colnames(raw_data$genes))
       ids <- trimws(as.character(raw_data$genes[[id_col[1L]]]))
-      rownames(raw_data$E) <- ids
+      feature_ids <- make.unique(ids, sep = "__dup")
+      rownames(raw_data$E) <- feature_ids
+      rownames(raw_data$genes) <- feature_ids
       if (!is.null(raw_data$other)) { #necessary to ensure matching signal/detection values
         raw_data$other <- lapply(
           raw_data$other, function(m) {
@@ -785,7 +789,9 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
       )
       id_col <- intersect(id_candidates, colnames(raw_data$genes))
       ids <- trimws(as.character(raw_data$genes[[id_col[1L]]]))
-      rownames(raw_data$E) <- ids
+      feature_ids <- make.unique(ids, sep = "__dup")
+      rownames(raw_data$E) <- feature_ids
+      rownames(raw_data$genes) <- feature_ids
       raw_data$targets <- make_targets(meta, matched_files, data_dir)
     }
   }
@@ -798,7 +804,9 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
     matched_files <- match_metadata_to_files(txt_files, meta)
     targets <- make_targets(meta, matched_files, data_dir)
     raw_data <- read.maimages(targets, source="agilent", green.only=T)
-    rownames(raw_data$E) <- raw_data$genes$ProbeName
+    feature_ids <- make.unique(raw_data$genes$ProbeName, sep = "__dup")
+    rownames(raw_data$E) <- feature_ids
+    rownames(raw_data$genes) <- feature_ids
   }
   else if (supplier %in% c(
     "Agilent miRNA microarray",
@@ -817,10 +825,12 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
     raw_data <- AgiMicroRna::readMicroRnaAFE(targets = targets, verbose = F)
     sample_ids <- colnames(raw_data$TGS)
     raw_data$targets <- targets[sample_ids, , drop = FALSE]
-    rownames(raw_data$TGS) <- raw_data$genes$ProbeName
+    feature_ids <- make.unique(raw_data$genes$ProbeName, sep = "__dup")
+    rownames(raw_data$TGS) <- feature_ids
     if (!is.null(raw_data$E)) {
-    rownames(raw_data$E) <- raw_data$genes$ProbeName
-  }
+      rownames(raw_data$E) <- feature_ids
+    }
+    rownames(raw_data$genes) <- feature_ids
     #raw_data <- read_agilent_mirna_safe(targets = targets, verbose = F)
   }
   else {
@@ -2709,6 +2719,7 @@ urna_to_elist <- function(x) {
     genes = x$genes,
     targets = targets
   )
+  rownames(out$genes) <- rownames(E)
 
   class(out) <- "EList"
   if (!is.null(x$other)) {

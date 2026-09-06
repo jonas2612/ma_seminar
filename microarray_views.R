@@ -189,9 +189,14 @@ for (ds in dataset_accessions) {
   )
 
   dataset_contrasts <- contrasts[[ds]]
+  metadata <- if (inherits(data2, c("ExpressionSet", "ExpressionFeatureSet"))) {
+    Biobase::pData(data2)
+    } else if (inherits(data2, c("EList", "EListRaw", "uRNAList"))) {
+    data2$targets
+    }
   available_conditions <- unique(
-    as.character(data2$pheno_data$combined_condition) #TODO
-  )
+    trimws(as.character(metadata[["combined_condition"]]))
+    )
 
   requested_conditions <- unique(unlist(dataset_contrasts, use.names = FALSE))
   absent_conditions <- setdiff(requested_conditions, available_conditions)
