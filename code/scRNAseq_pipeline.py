@@ -546,6 +546,8 @@ def run_limma_dea(
         & adata_pb.obs["n_cells"].ge(min_cells)
         & adata_pb.obs[condition_col].isin(condition_levels)
     )
+    logger.info(adata_pb)
+    logger.info(keep)
     adata_pb_ct = adata_pb[keep].copy()
 
     meta = adata_pb_ct.obs[[sample_col, cell_type_col, condition_col, "n_cells", *covariate_cols]].copy()
