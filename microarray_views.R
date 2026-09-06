@@ -222,6 +222,6 @@ for (ds in dataset_accessions) {
         "_vs_",
         condition_ref_safe
     )
-    dea <- run_dea(data2, "combined_condition", contrast_str = contrast_expression, save.view = T, save.dir = paste0("/usr/local/storage/data_microarray/dea/", ds, "_", output_label, ".csv"))
+    dea <- run_dea(data2, "combined_condition", contrast_str = contrast_expression, save.view = T, save.dir = paste0("/usr/local/storage/data_microarray/dea"))
   }
 }
