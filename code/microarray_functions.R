@@ -1231,7 +1231,7 @@ background_correction <- function(raw_data, annotate = T, clean.genes = T, save.
         metadata <- Biobase::pData(background_corrected)
       } else {
         E <- background_corrected$E
-        metadat <- background_corrected$targets
+        metadata <- background_corrected$targets
       }
       accession <- unique(trimws(as.character(metadata[["accession"]])))
       accession <- accession[!is.na(accession) & nzchar(accession)]
