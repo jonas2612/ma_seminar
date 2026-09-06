@@ -63,7 +63,7 @@ for key, value in datasets_and_contrasts.items():
                         logger.warning(message)
                     else:
                         print(message)
-                elif "Count matrix is empty." is error_message:
+                elif "Count matrix is empty." in error_message:
                     message = (
                         f"Skipping pseudobulk DEA: dataset={key}; "
                         f"cell type={ct!r}; "
