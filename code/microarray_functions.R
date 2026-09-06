@@ -1973,10 +1973,12 @@ run_dea <- function(
     stop("Missing covariate columns: ", paste(missing_covariates, collapse = ", "))
   }
 
-  group_values <- as.character(meta[[group_col]])
+  group_values <- trimws(as.character(meta[[group_col]]))
 
   if (is.null(group_levels)) {
     group_levels <- unique(group_values)
+  } else {
+    group_levels <- trimws(as.character(group_levels))
   }
 
   group <- factor(group_values, levels = group_levels)
@@ -1988,9 +1990,22 @@ run_dea <- function(
     )
   }
   if (nlevels(group)<2L) stop("DEA needs at least 2 levels.")
+
+  group_key <- data.frame(
+    group_raw = levels(group),
+    group_coef = make.names(levels(group), unique = TRUE),
+    stringsAsFactors = FALSE
+  )
+
+  if (anyDuplicated(group_key$group_coef)) {
+    stop("Sanitized group coefficient names are not unique.")
+  }
   
   design_data <- meta
-  design_data$group <- group
+  design_data$group <- factor(
+    group_key$group_coef[match(group_values, group_key$group_raw)],
+    levels = group_key$group_coef
+  )
 
   design_formula <- if (is.null(covariate_cols) || !length(covariate_cols)) {
     stats::as.formula("~ 0 + group")
@@ -2000,9 +2015,8 @@ run_dea <- function(
     )
   }
   design <- stats::model.matrix(design_formula, data=design_data)
-
-  colnames(design) <- sub("^group", "", colnames(design))
-  colnames(design) <- make.names(colnames(design))
+  group_design_cols <- startsWith(colnames(design), "group")
+  colnames(design)[group_design_cols] <- group_key$group_coef
 
   if (qr(design)$rank < ncol(design)) stop("The DEA design matrix is not full rank.")
   
@@ -2010,10 +2024,58 @@ run_dea <- function(
 
   if (is.null(contrast_str)) {
     if (nlevels(group) != 2L) stop("Require 2 group levels for automatic contrast detection.")
-    lev <- make.names(levels(group))
-    contrast_str <- paste0(lev[2L], "-", lev[1L])
+    lcontrast_str <- c(
+      group_key$group_raw[1L],
+      group_key$group_raw[2L]
+    )
   }
-  contrast_matrix <- limma::makeContrasts(contrasts = contrast_str, levels = design)
+  if (is.character(contrast_str) && length(contrast_str) == 2L) {
+    contrast_raw_reference <- trimws(contrast_str[[1L]])
+    contrast_raw_test <- trimws(contrast_str[[2L]])
+
+    contrast_reference_coef <- group_key$group_coef[
+      match(contrast_raw_reference, group_key$group_raw)
+    ]
+
+    contrast_test_coef <- group_key$group_coef[
+      match(contrast_raw_test, group_key$group_raw)
+    ]
+
+    if (anyNA(c(contrast_reference_coef, contrast_test_coef))) {
+      unavailable_groups <- c(
+        contrast_raw_reference[is.na(contrast_reference_coef)],
+        contrast_raw_test[is.na(contrast_test_coef)]
+      )
+
+      stop(
+        "Contrast refers to condition(s) not present in `", group_col, "`:\n  - ",
+        paste(unavailable_groups, collapse = "\n  - "),
+        "\nAvailable conditions:\n  - ",
+        paste(group_key$group_raw, collapse = "\n  - ")
+      )
+    }
+
+    contrast_expression <- paste0(
+      contrast_test_coef,
+      " - ",
+      contrast_reference_coef
+    )
+
+  } else if (is.character(contrast_str) && length(contrast_str) == 1L) {
+    contrast_expression <- contrast_str
+
+  } else {
+    stop(
+      "`contrast_str` must be either:\n",
+      "  - a two-element character vector: c(reference_condition, test_condition), or\n",
+      "  - one valid limma contrast expression."
+    )
+  }
+
+  contrast_matrix <- limma::makeContrasts(
+    contrasts = contrast_expression,
+    levels = design
+  )
   fit2 <- limma::contrasts.fit(fit, contrasts = contrast_matrix)
   fit2 <- limma::eBayes(fit2)
 
@@ -2038,9 +2100,18 @@ run_dea <- function(
     accession <- unique(trimws(as.character(metadata$accession)))
     accession <- accession[!is.na(accession) & nzchar(accession)]
 
+    safe_contrast_label <- gsub(
+      pattern = "[^[:alnum:]_.-]+",
+      replacement = "_",
+      x = contrast_expression
+    )
+
+    safe_contrast_label <- gsub("_+", "_", safe_contrast_label)
+    safe_contrast_label <- gsub("^_|_$", "", safe_contrast_label)
+
     output_file <- file.path(
       save.dir,
-      paste0(paste(accession, sep = "_"), "_dea.csv")
+      paste0(paste(accession, sep = "_"), "_", safe_contrast_label, "_dea.csv")
     )
     utils::write.csv(
       results,
@@ -2050,7 +2121,15 @@ run_dea <- function(
     )
   }
 
-  list(fit = fit2, design = design, metadata = meta, contrast = contrast_str, results = results)
+  list(
+    fit = fit2,
+    design = design,
+    metadata = meta,
+    group_key = group_key,
+    contrast_raw = contrast_str,
+    contrast_expression = contrast_expression,
+    results = results
+  )
 }
 
 `%||%` <- function(a, b) if (is.null(a)) b else a

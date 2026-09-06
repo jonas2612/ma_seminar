@@ -190,7 +190,7 @@ for (ds in dataset_accessions) {
 
   dataset_contrasts <- contrasts[[ds]]
   available_conditions <- unique(
-    as.character(data2$pheno_data$combined_condition)
+    as.character(data2$pheno_data$combined_condition) #TODO
   )
 
   requested_conditions <- unique(unlist(dataset_contrasts, use.names = FALSE))
@@ -205,9 +205,18 @@ for (ds in dataset_accessions) {
   }
   
   for (comb in dataset_contrasts){
-    contrast_str <- paste0(comb[2L], "-", comb[1L])
-    dea <- run_dea(data2, "combined_condition", contrast_str = comb, save.view = T, 
-    save.dir = paste0("/usr/local/storage/data_microarray/dea/", ds, "_", contrast_str, ".csv")
+    condition_ref_safe <- make.names(comb[1L], unique = TRUE)
+    condition_test_safe <- make.names(comb[2L], unique = TRUE)
+    contrast_expression <- paste0(
+        condition_test_safe,
+        " - ",
+        condition_ref_safe
     )
+    output_label <- paste0(
+        condition_test_safe,
+        "_vs_",
+        condition_ref_safe
+    )
+    dea <- run_dea(data2, "combined_condition", contrast_str = contrast_expression, save.view = T, save.dir = paste0("/usr/local/storage/data_microarray/dea/", ds, "_", output_label, ".csv"))
   }
 }
