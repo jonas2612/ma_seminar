@@ -205,8 +205,8 @@ for (ds in dataset_accessions) {
   }
   
   for (comb in dataset_contrasts){
-    contrast_str <- paste0(comb[2L], "-", comb[1L])
-    dea <- run_dea(data2, "combined_condition", contrast_str = contrast_str, save.view = T, 
+    #contrast_str <- paste0(comb[2L], "-", comb[1L])
+    dea <- run_dea(data2, "combined_condition", contrast_str = comb, save.view = T, 
     save.dir = paste0("/usr/local/storage/data_microarray/dea/", ds, "_", contrast_str, ".csv")
     )
   }
