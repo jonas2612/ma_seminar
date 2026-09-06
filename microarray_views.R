@@ -21,25 +21,26 @@ dataset_accessions <- c(
   "GSE20060"#
 )
 
-for (ds in dataset_accessions) download_microarray_data(ds, ".")
+for (ds in dataset_accessions) download_microarray_data(ds, "/usr/local/storage/data_microarray/raw_data")
 
-contrasts = c(
-    GSE53999 = c(
+contrasts = list(
+    GSE53999 = list(
         c("||atherogenic|Ctrl|LDL -/||", "||atherogenic|JQ1|LDL -/||"),
         c("||atherogenic|Ctrl|LDL -/||", "||atherogenic|TNF|LDL -/||"),
         c("||atherogenic|Ctrl|LDL -/||", "||atherogenic|JQ1, TNF|LDL -/||"),
         c("||atherogenic|JQ1|LDL -/||", "||atherogenic|TNF|LDL -/||"),
         c("||atherogenic|JQ1|LDL -/||", "||atherogenic|JQ1, TNF|LDL -/||"),
-        c("||atherogenic|TNF|LDL -/||", "||atherogenic|JQ1, TNF|LDL -/||")),
-    GSE152884 = c(
+        c("||atherogenic|TNF|LDL -/||", "||atherogenic|JQ1, TNF|LDL -/||")
+    ),
+    GSE152884 = list(
         c("||chow|Ctrl|WT||", "||chow|Ctrl|Mef2a, Mef2c, Mef2d||")
     ),
-    GSE72633 = c(
+    GSE72633 = list(
         c("|||Ctrl|siCtrl||", "|||Ctrl|siNotch1||"),
         c("|||Ctrl|siCtrl||", "|||Ctrl|ox-PAPC||"),
         c("|||Ctrl|siNotch1||", "|||Ctrl|ox-PAPC||")
     ),
-    GSE42419 = c(
+    GSE42419 = list(
         c("||chow|Ctrl|WT||", "||chow|Ctrl|PPARg||"),
         c("||chow|Ctrl|WT||", "||atherogenic|Ctrl|WT||"),
         c("||chow|Ctrl|WT||", "||atherogenic|Ctrl|PPARg||"),
@@ -47,10 +48,10 @@ contrasts = c(
         c("||chow|Ctrl|PPARg||", "||atherogenic|Ctrl|PPARg||"),
         c("||atherogenic|Ctrl|PPARg||", "||atherogenic|Ctrl|PPARg||")
     ),
-    GSE152625 = c(
+    GSE152625 = list(
         c("|||direct coculture monocytes (CD16+)|WT||", "|||transwell coculture monocytes (CD16+)|WT||")
     ),
-    GSE28117 = c(
+    GSE28117 = list(
         c("|||Ctrl|WT||", "|||Il-4 (1h)|WT||"),
         c("|||Ctrl|WT||", "|||Il-4 (2h)|WT||"),
         c("|||Ctrl|WT||", "|||Il-4 (4h)|WT||"),
@@ -118,40 +119,40 @@ contrasts = c(
         c("|||Il-4 (4h)|siSTAT6 (oligo1)||", "|||Ctrl|adenovirusSTAT6||"),
         c("|||Ctrl|adenovirusCtrl||", "|||Ctrl|adenovirusSTAT6||")
     ),
-    GSE111782 = c(
+    GSE111782 = list(
         c("|||Ctrl|WT|TRUE|", "|||Ctrl|WT|FALSE|")
     ),
-    GSE111794 = c(
+    GSE111794 = list(
         c("|||Ctrl|WT|TRUE|", "|||Ctrl|WT|FALSE|")
     ),
-    GSE137582 = c(
+    GSE137582 = list(
         c("||HFD|Ctrl|WT||", "||HFD|Ctrl|LDLR(W483STOP) +/+||")
     ),
-    GSE137581 = c(
+    GSE137581 = list(
         c("||HFD|Ctrl|WT||", "||HFD|Ctrl|LDLR(W483STOP) +/+||")
     ),
-    GSE137580 = c(
+    GSE137580 = list(
         c("|||Ctrl|WT||", "|||oxLDL|WT||")
     ),
-    GSE137578 = c(
+    GSE137578 = list(
         c("|||Ctrl|WT||", "|||oxLDL|WT||")
     ),
-    GSE205119 = c(
+    GSE205119 = list(
         c("|||Ctrl|WT||", "|||Ctrl|hsa_circ_0122319||"),
         c("|||Ctrl|WT||", "|||Ctrl|hsa_circ_0002457||"),
         c("|||Ctrl|hsa_circ_0122319||", "|||Ctrl|hsa_circ_0002457||")
     ),
-    GSE205120 = c(
+    GSE205120 = list(
         c("|||Ctrl|WT||", "|||Ctrl|hsa_circ_0122319||"),
         c("|||Ctrl|WT||", "|||Ctrl|hsa_circ_0002457||"),
         c("|||Ctrl|hsa_circ_0122319||", "|||Ctrl|hsa_circ_0002457||")
     ),
-    GSE48006 = c(
+    GSE48006 = list(
         c("|||Ctrl|miR-21-3p||", "|||Ctrl|miR-27a-5p||"),
         c("|||Ctrl|miR-21-3p||", "|||Ctrl|miRCtrl||"),
         c("|||Ctrl|miR-27a-5p||", "|||Ctrl|miRCtrl||")
     ),
-    GSE20739 = c(
+    GSE20739 = list(
         c("|||oscillatory wall shear stress|WT||", "|||oscillatory wall shear stress|miR-663-LNA||"),
         c("|||oscillatory wall shear stress|WT||", "|||stable laminar shear stress|WT||"),
         c("|||oscillatory wall shear stress|WT||", "|||stable laminar shear stress|miR-663-LNA||"),
@@ -159,7 +160,7 @@ contrasts = c(
         c("|||oscillatory wall shear stress|miR-663-LNA||", "|||stable laminar shear stress|miR-663-LNA||"),
         c("|||stable laminar shear stress|WT||", "|||stable laminar shear stress|miR-663-LNA||")
     ),
-    GSE72180 = c(
+    GSE72180 = list(
         c("|||E2|KRR+||", "|||Ctrl|KRR+||"),
         c("|||E2|KRR+||", "|||E2|WT||"),
         c("|||E2|KRR+||", "|||Ctrl|WT||"),
@@ -170,7 +171,7 @@ contrasts = c(
     GSE70126 = c(
         c("||HFD|Ctrl|Apoe -/-||", "||chow|Ctrl|WT||")
     ),
-    GSE20060 = c(
+    GSE20060 = list(
         c("||chow|Ctrl|WT||", "||chow|oxPAPC|WT||")
     )
 )
@@ -179,7 +180,7 @@ for (ds in dataset_accessions) {
   message("\n==============================")
   message("Working on ", ds)
   message("==============================")
-  raw_data <- load_data(ds, "/home/f/flor/metadata_all_samples.txt", sep = if (ds == "GSE72180") "_" else ".")
+  raw_data <- load_data(paste0("/usr/local/storage/data_microarray/raw_data", ds), "/home/f/flor/metadata_all_samples.txt", sep = if (ds == "GSE72180") "_" else ".")
   data1 <- background_correction(raw_data, save.view = T, 
   save.dir = paste0("/usr/local/storage/data_microarray/background_corrected/", ds, ".csv")
   )
