@@ -1266,10 +1266,11 @@ background_correction <- function(raw_data, annotate = T, clean.genes = T, condi
           paste0(accession, "_", safe_condition, "_background_corr_data.csv")
         )
 
-        utils::write.csv(
+        utils::write.table(
           E_condition,
           file = output_file,
           row.names = TRUE,
+          sep = "\t",
           quote = FALSE
         )
       }
@@ -1358,10 +1359,11 @@ normalization <- function(raw_data, annotate = T, clean.genes = T, condition_col
           paste0(accession, "_", safe_condition, "_norm_data.csv")
         )
 
-        utils::write.csv(
+        utils::write.table(
           E_condition,
           file = output_file,
           row.names = TRUE,
+          sep = "\t",
           quote = FALSE
         )
       }
@@ -2123,11 +2125,12 @@ run_dea <- function(
       save.dir,
       paste0(paste(accession, sep = "_"), "_", safe_contrast_label, "_dea.csv")
     )
-    utils::write.csv(
+    utils::write.table(
       results,
       file = output_file,
       row.names = TRUE,
-      quote = FALSE
+      sep = "\t",
+      quote = FALSE,
     )
   }
 
