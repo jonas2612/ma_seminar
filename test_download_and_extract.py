@@ -43,6 +43,7 @@ for key, value in datasets_and_contrasts.items():
                         save_path_plot = umap_dir / f"{key}_umap_annot.png", save_path=annot_dir / f"{key}_annot.h5ad")
     for ct in adata.obs['cell_type_level1'].unique():
         logger.info(f"Working on {ct}")
-        run_limma_dea(adata, ct, value['contrast'], dea_dir / f"{key}_{ct}_{value['cond_col']}_{value['contrast'][1]}-{value['contrast'][0]}.tsv",
+        for contr in value['contrast']:
+            run_limma_dea(adata, ct, contr, dea_dir / f"{key}_{ct}_{value['cond_col']}_{contr[1]}-{contr[0]}.tsv",
                       condition_col=value['cond_col'], logger=logger, cell_type_col="cell_type_level1")
     
