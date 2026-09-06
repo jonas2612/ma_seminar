@@ -542,16 +542,16 @@ def run_limma_dea(
 
     covariate_cols = list(covariate_cols or [])
     adata_pb.obs[condition_col] = adata_pb.obs[condition_col].astype(str)
-    logger.info(f"cell type filer: {adata_pb.obs[cell_type_col].astype(str).eq(str(cell_type)).sum()}")
-    logger.info(f"cell type filer: {adata_pb.obs["n_cells"].ge(min_cells).sum()}")
-    logger.info(f"cell type filer: {adata_pb.obs[condition_col].isin(condition_levels).sum()}")
+    logger.debug(f"cell type filer: {adata_pb.obs[cell_type_col].astype(str).eq(str(cell_type)).sum()}")
+    logger.debug(f"cell type filer: {adata_pb.obs["n_cells"].ge(min_cells).sum()}")
+    logger.debug(f"cell type filer: {adata_pb.obs[condition_col].isin(condition_levels).sum()}")
     keep = (
         adata_pb.obs[cell_type_col].astype(str).eq(str(cell_type)) 
         & adata_pb.obs["n_cells"].ge(min_cells)
         & adata_pb.obs[condition_col].isin(condition_levels)
     )
-    logger.info(adata_pb)
-    logger.info(keep)
+    logger.debug(adata_pb)
+    logger.debug(keep)
     adata_pb_ct = adata_pb[keep].copy()
 
     meta = adata_pb_ct.obs[[sample_col, cell_type_col, condition_col, "n_cells", *covariate_cols]].copy()
@@ -564,7 +564,7 @@ def run_limma_dea(
         counts = np.asarray(adata_pb_ct.X).T
 
     counts = pd.DataFrame(counts, index=adata_pb_ct.var_names.astype(str), columns=meta.index)
-    logger.info(counts.head())
+    logger.debug(counts.head())
 
     r_script_path = Path(os.path.dirname(os.path.realpath(__file__))) / "scRNAseq_dea.R"
 
