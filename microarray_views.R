@@ -46,7 +46,7 @@ contrasts = list(
         c("||chow|Ctrl|WT||", "||atherogenic|Ctrl|PPARg||"),
         c("||chow|Ctrl|PPARg||", "||atherogenic|Ctrl|WT||"),
         c("||chow|Ctrl|PPARg||", "||atherogenic|Ctrl|PPARg||"),
-        c("||atherogenic|Ctrl|PPARg||", "||atherogenic|Ctrl|PPARg||")
+        c("||atherogenic|Ctrl|WT||", "||atherogenic|Ctrl|PPARg||")
     ),
     GSE152625 = list(
         c("|||direct coculture monocytes (CD16+)|WT||", "|||transwell coculture monocytes (CD16+)|WT||")
