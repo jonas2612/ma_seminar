@@ -1233,7 +1233,7 @@ background_correction <- function(raw_data, annotate = T, clean.genes = T, save.
         E <- background_corrected$E
         metadat <- background_corrected$targets
       }
-      accession <- unique(trimws(as.character(metadata$accession)))
+      accession <- unique(trimws(as.character(metadata[["accession"]])))
       accession <- accession[!is.na(accession) & nzchar(accession)]
 
       output_file <- file.path(
@@ -1308,7 +1308,7 @@ normalization <- function(raw_data, annotate = T, clean.genes = T, save.view = F
         E <- data$E
         metadata <- data$targets
       }
-      accession <- unique(trimws(as.character(metadata$accession)))
+      accession <- unique(trimws(as.character(metadata[["accession"]])))
       accession <- accession[!is.na(accession) & nzchar(accession)]
 
       output_file <- file.path(
