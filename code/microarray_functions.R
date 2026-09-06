@@ -1235,22 +1235,39 @@ background_correction <- function(raw_data, annotate = T, clean.genes = T, save.
       }
       accession <- unique(trimws(as.character(metadata[["accession"]])))
       accession <- accession[!is.na(accession) & nzchar(accession)]
+      conditions <- unique(metadata$combined_condition)
+      conditions <- conditions[!is.na(conditions) & nzchar(conditions)]
 
-      output_file <- file.path(
-        save.dir,
-        paste0(accession, "_background_corr_data.csv")
-      )
-      utils::write.csv(
-        E,
-        file = output_file,
-        row.names = TRUE,
-        quote = FALSE
-      )
+      for (condition in conditions) {
+        sample_indices <- which(metadata$combined_condition == condition)
+
+        E_condition <- E[, sample_indices, drop = FALSE]
+
+        safe_condition <- gsub(
+          "[^[:alnum:]_.-]+",
+          "_",
+          condition
+        )
+        safe_condition <- gsub("_+", "_", safe_condition)
+        safe_condition <- gsub("^_|_$", "", safe_condition)
+
+        output_file <- file.path(
+          save.dir,
+          paste0(accession, "_", safe_condition, "_background_corr_data.csv")
+        )
+
+        utils::write.csv(
+          E_condition,
+          file = output_file,
+          row.names = TRUE,
+          quote = FALSE
+        )
+      }
     }
   background_corrected
 }
 
-normalization <- function(raw_data, annotate = T, clean.genes = T, save.view = F, save.dir = NULL) {
+normalization <- function(raw_data, annotate = T, clean.genes = T, condition_col = "combined_condition", save.view = F, save.dir = NULL) {
   if (isTRUE(attr(raw_data, "preprocessing_done"))) {
     message("Skipping background correction, as data is already preprocessed (.chp)")
     return (annotate_data(raw_data))
@@ -1310,17 +1327,34 @@ normalization <- function(raw_data, annotate = T, clean.genes = T, save.view = F
       }
       accession <- unique(trimws(as.character(metadata[["accession"]])))
       accession <- accession[!is.na(accession) & nzchar(accession)]
+      conditions <- unique(metadata$combined_condition)
+      conditions <- conditions[!is.na(conditions) & nzchar(conditions)]
 
-      output_file <- file.path(
-        save.dir,
-        paste0(accession, "_norm_data.csv")
-      )
-      utils::write.csv(
-        E,
-        file = output_file,
-        row.names = TRUE,
-        quote = FALSE
-      )
+      for (condition in conditions) {
+        sample_indices <- which(metadata$combined_condition == condition)
+
+        E_condition <- E[, sample_indices, drop = FALSE]
+
+        safe_condition <- gsub(
+          "[^[:alnum:]_.-]+",
+          "_",
+          condition
+        )
+        safe_condition <- gsub("_+", "_", safe_condition)
+        safe_condition <- gsub("^_|_$", "", safe_condition)
+
+        output_file <- file.path(
+          save.dir,
+          paste0(accession, "_", safe_condition, "_norm_data.csv")
+        )
+
+        utils::write.csv(
+          E_condition,
+          file = output_file,
+          row.names = TRUE,
+          quote = FALSE
+        )
+      }
     }
   data
 }
