@@ -16,9 +16,9 @@ dea_dir = base_dir / "dea"
 annot_dir = base_dir / "annotated_data"
 
 datasets_and_contrasts = {
-    "GSE309462": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("FALSE", "TRUE")]},
-    "GSE260657": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("FALSE", "TRUE")]},
-    "GSE253903": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("FALSE", "TRUE")]},
+    "GSE309462": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]},
+    "GSE260657": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]},
+    "GSE253903": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]},
     "GSE159677": {"cond_col": "cell_type", "contrast": [("plaque adjacent", "plaque")]},
 }
 
