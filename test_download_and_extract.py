@@ -44,6 +44,26 @@ for key, value in datasets_and_contrasts.items():
     for ct in adata.obs['cell_type_level1'].unique():
         logger.info(f"Working on {ct}")
         for contr in value['contrast']:
-            run_limma_dea(adata, ct, contr, dea_dir / f"{key}_{ct}_{value['cond_col']}_{contr[1]}-{contr[0]}.tsv",
+            try:
+                run_limma_dea(adata, ct, contr, dea_dir / f"{key}_{ct}_{value['cond_col']}_{contr[1]}-{contr[0]}.tsv",
                       condition_col=value['cond_col'], logger=logger, cell_type_col="cell_type_level1")
+            except RuntimeError as exc:
+                error_message = str(exc)
+                if "Insufficient independent pseudobulk profiles per group" in error_message:
+                    message = (
+                        f"Skipping pseudobulk DEA: dataset={key}; "
+                        f"cell type={ct!r}; "
+                        f"contrast={contr[1]!r} vs {contr[0]!r}; "
+                        f"condition column={value['cond_col']!r}. "
+                        f"Reason: insufficient independent pseudobulk profiles.\n"
+                        f"{error_message}"
+                    )
+
+                    if logger is not None:
+                        logger.warning(message)
+                    else:
+                        print(message)
+
+                else:
+                    raise
     
