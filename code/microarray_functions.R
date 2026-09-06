@@ -1178,7 +1178,7 @@ detection_pval <- function(raw_data) {
   detectionName
 }
 
-background_correction <- function(raw_data, annotate = T, clean.genes = T, save.view = F, save.dir = NULL) {
+background_correction <- function(raw_data, annotate = T, clean.genes = T, condition_col = "combined_condition", save.view = F, save.dir = NULL) {
   supplier <- get_supplier(raw_data)
   if (isTRUE(attr(raw_data, "preprocessing_done"))) {
     message("Skipping background correction, as data is already preprocessed (.chp)")
