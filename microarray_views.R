@@ -179,7 +179,7 @@ for (ds in dataset_accessions) {
   message("\n==============================")
   message("Working on ", ds)
   message("==============================")
-  raw_data <- load_data(ds, "..\\metadata_all_samples.txt", sep = if (ds == "GSE72180") "_" else ".")
+  raw_data <- load_data(ds, "/home/f/flor/metadata_all_samples.txt", sep = if (ds == "GSE72180") "_" else ".")
   data1 <- background_correction(raw_data, save.view = T, 
   save.dir = paste0("/usr/local/storage/data_microarray/background_corrected/", ds, ".csv")
   )
