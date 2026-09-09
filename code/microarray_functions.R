@@ -419,7 +419,7 @@ make_annotation_df <- function(meta_df, file_paths) {
 }
 
 make_targets <- function(meta_df, file_paths, data_dir, col = "FileName") {
-  treatment <- apply(meta_df[, c("age", "diet", "medication", "KO", "symptomatic_atherosclerosis"), drop=F], 1, function(row) {paste(row, collapse="|")})
+  treatment <- apply(meta_df[, c("age", "diet", "medication", "KO", "symptomatic_atherosclerosis", "Other"), drop=F], 1, function(row) {paste(row, collapse="|")})
   gerep <- as.integer(factor(treatment, levels=unique(treatment)))
   paths <- file.path(data_dir, basename(file_paths))
   df <- data.frame(setNames(list(paths), col),
@@ -674,7 +674,8 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
     "Affymetrix HT Human Genome U133A",
     "Affymetrix GeneChip Human Genome U133 Plus 2.0 Array",
     "Affymetrix Human Genome U133 Plot 2.0 Array",
-    "Affymetrix Rat Genome 230A"
+    "Affymetrix Rat Genome 230A",
+    "Affymetrix Mouse Genome 430 2.0 Array"
   )){
     cel_files <- list.celfiles(data_dir, full.names = T)
     matched_files <- match_metadata_to_files(cel_files, meta)
@@ -684,10 +685,12 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
   else if (supplier %in% c(
     "Affymetrix Mouse Transcriptome Array 1.0",
     "Affymetrix Human Gene 2.0 ST",
+    "Affymetrix Human Gene 1.0 ST",
     "Affymetrix GeneChip Mouse Gene 1.0 ST Array",
     "Affymetrix Mouse Exon-Junction Array",
     "Affymetrix Rat Gene 1.0 ST",
-    "Affymetrix GeneChip miRNA 3.0"
+    "Affymetrix GeneChip miRNA 3.0",
+    "Affymetrix GeneChip miRNA 4.0"
   )) {
     chp_files <- list.files(data_dir, pattern = "\\.chp$", full.names = T, ignore.case = T)
     if (length(chp_files) > 0) {
@@ -704,7 +707,8 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
   else if (supplier %in% c(
     "Illumina HumanHT-12 v4.0",
     "Illumina HumanHT-12 v3.0",
-    "Illumina MouseRef-8 v2.0"
+    "Illumina MouseRef-8 v2.0",
+    "Illumina  Human v2 MicroRNA"
   )) {
     # add distinction for existance of .bgx files (manifest)
     idat_files <- list.files(data_dir, pattern = "\\.idat(\\.gz)?$", full.names = T)
@@ -776,7 +780,7 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
     else {
       message("Illumina data is presented as .txt data")
       matched_files <- match_metadata_to_files(txt_files, meta)
-      raw_data <- limma::read.ilmn(files = txt_files,
+      raw_data <- limma::read.ilmn(files = matched_files,
                                    probeid = "ProbeID", 
                                    expr = "AVG_Signal", 
                                    other.columns = "Detection"
@@ -798,23 +802,29 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
   else if (supplier %in% c(
     "Agilent-084555 026652QM_RCUG_HomoSapiens",
     "Agilent-074809 SurePrint G3 Mouse GE v2",
-    "Agilent-072363 SurePrint G3 Human GE v3"
+    "Agilent-072363 SurePrint G3 Human GE v3",
+    "Agilent-028005 SurePrint G3 Mouse GE 8x60K Microarray"
   )) {
     txt_files <- list.files(data_dir, pattern = "\\.txt$", full.names = T, ignore.case = T)
     matched_files <- match_metadata_to_files(txt_files, meta)
     targets <- make_targets(meta, matched_files, data_dir)
-    raw_data <- read.maimages(targets, source="agilent", green.only=T)
+    raw_data <- limma::read.maimages(targets, source="agilent", green.only=T)
     feature_ids <- make.unique(raw_data$genes$ProbeName, sep = "__dup")
     rownames(raw_data$E) <- feature_ids
     rownames(raw_data$genes) <- feature_ids
   }
   else if (supplier %in% c(
     "Agilent miRNA microarray",
+    "Agilent-019159 Rat miRNA",
+    "Agilent-021827 Human miRNA Microarray G4470C",
+    "Agilent-021827 Human miRNA Microarray v2",
+    "Agilent-021827 Human miRNA Microarray v3",
+    "Agilent-035430 mouse miRNA array",
+    "Agilent-050340 Custom Rat miRNA Microarray",
     "Agilent-070155 Mouse miRNA Microarray",
     "Agilent-070156 Human_miRNA_V21.0_Microarray",
-    "Agilent-070156 Human miRNA",
-    "Agilent-050340 Custom Rat miRNA Microarray",
-    "Agilent-019159 Rat miRNA"
+    "Agilent-070156 Human miRNA"
+    
   )) {
     txt_files <- list.files(data_dir, pattern = "\\.txt$", full.names = T, ignore.case = T)
     matched_files <- match_metadata_to_files(txt_files, meta)
@@ -1201,7 +1211,9 @@ background_correction <- function(raw_data, annotate = T, clean.genes = T, condi
                       "Illumina HumanHT-12 v3.0",
                       "Illumina HumanHT-12 v3",
                       "Illumina MouseRef-8 v2.0",
-                      "Illumina MouseRef-8 v2")) {
+                      "Illumina MouseRef-8 v2",
+                      "Illumina  Human v2 MicroRNA"
+                      )) {
     detectionName <- detection_pval(raw_data)
     if (!is.null(detectionName)) {
       raw_data_filtered <- filter_illumina(raw_data, detectionName)
@@ -1217,14 +1229,16 @@ background_correction <- function(raw_data, annotate = T, clean.genes = T, condi
   else if (inherits(raw_data, c("RGList","EListRaw","EList")) &&
            supplier %in% c("Agilent-084555 026652QM_RCUG_HomoSapiens",
                            "Agilent-074809 SurePrint G3 Mouse GE v2",
-                           "Agilent-072363 SurePrint G3 Human GE v3")) {
+                           "Agilent-072363 SurePrint G3 Human GE v3",
+                           "Agilent-028005 SurePrint G3 Mouse GE 8x60K Microarray"
+                           )) {
     background_corrected <- limma::backgroundCorrect(raw_data, method = "normexp", offset=50)
   }
   else if (inherits(raw_data,"AffyBatch")) {
     background_corrected <- affyPLM::preprocess(raw_data, normalize = F, background = T, background.method = "RMA.2")
     background_corrected <- affy::rma(background_corrected, background = F, normalize = F)
   }
-  else if (inherits(raw_data, "ExpressionFeatureSet")) {
+  else if (inherits(raw_data, c("ExpressionFeatureSet", "GeneFeatureSet"))) {
     background_corrected <- oligo::rma(raw_data, normalize = F, background = T)
   }
   else {
@@ -1239,41 +1253,30 @@ background_correction <- function(raw_data, annotate = T, clean.genes = T, condi
       if (inherits(background_corrected, c("ExpressionSet", "ExpressionFeatureSet"))) {
         E <- Biobase::exprs(background_corrected)
         metadata <- Biobase::pData(background_corrected)
+        genes <- Biobase::fData(background_corrected)
       } else {
         E <- background_corrected$E
         metadata <- background_corrected$targets
+        genes <- background_corrected$genes
       }
       accession <- unique(trimws(as.character(metadata[["accession"]])))
       accession <- accession[!is.na(accession) & nzchar(accession)]
-      conditions <- unique(metadata$combined_condition)
-      conditions <- conditions[!is.na(conditions) & nzchar(conditions)]
+      
+      rownames(E) <- genes$Symbol
+      colnames(E) <- metadata$sample
 
-      for (condition in conditions) {
-        sample_indices <- which(metadata$combined_condition == condition)
+      output_file <- file.path(
+        save.dir,
+        paste0(accession, "_background_corr_data.tsv")
+      )
 
-        E_condition <- E[, sample_indices, drop = FALSE]
-
-        safe_condition <- gsub(
-          "[^[:alnum:]_.-]+",
-          "_",
-          condition
-        )
-        safe_condition <- gsub("_+", "_", safe_condition)
-        safe_condition <- gsub("^_|_$", "", safe_condition)
-
-        output_file <- file.path(
-          save.dir,
-          paste0(accession, "_", safe_condition, "_background_corr_data.csv")
-        )
-
-        utils::write.table(
-          E_condition,
-          file = output_file,
-          row.names = TRUE,
-          sep = "\t",
-          quote = FALSE
-        )
-      }
+      utils::write.table(
+        E,
+        file = output_file,
+        row.names = TRUE,
+        sep = "\t",
+        quote = FALSE
+      )
     }
   background_corrected
 }
@@ -1290,7 +1293,9 @@ normalization <- function(raw_data, annotate = T, clean.genes = T, condition_col
                       "Illumina HumanHT-12 v3.0",
                       "Illumina HumanHT-12 v3",
                       "Illumina MouseRef-8 v2.0",
-                      "Illumina MouseRef-8 v2")) {
+                      "Illumina MouseRef-8 v2",
+                      "Illumina  Human v2 MicroRNA"
+                      )) {
     detectionName <- detection_pval(raw_data)
     if (!is.null(detectionName)) {
       raw_data_filtered <- filter_illumina(raw_data, detectionName)
@@ -1310,14 +1315,16 @@ normalization <- function(raw_data, annotate = T, clean.genes = T, condition_col
   else if (inherits(raw_data, c("RGList","EListRaw","EList")) &&
            supplier %in% c("Agilent-084555 026652QM_RCUG_HomoSapiens",
                            "Agilent-074809 SurePrint G3 Mouse GE v2",
-                           "Agilent-072363 SurePrint G3 Human GE v3")) {
+                           "Agilent-072363 SurePrint G3 Human GE v3",
+                           "Agilent-028005 SurePrint G3 Mouse GE 8x60K Microarray"
+                           )) {
     data <- limma::backgroundCorrect(raw_data, method = "normexp", offset=50)
     data <- limma::normalizeBetweenArrays(data)
   }
   else if (inherits(raw_data,"AffyBatch")) {
     data <- affy::rma(raw_data, background = T, normalize = T)
   }
-  else if (inherits(raw_data, "ExpressionFeatureSet")) {
+  else if (inherits(raw_data, c("ExpressionFeatureSet", "GeneFeatureSet"))) {
     data <- oligo::rma(raw_data, background = T, normalize = T)
   }
   else {
@@ -1332,41 +1339,30 @@ normalization <- function(raw_data, annotate = T, clean.genes = T, condition_col
       if (inherits(data, c("ExpressionSet", "ExpressionFeatureSet"))) {
         E <- Biobase::exprs(data)
         metadata <- Biobase::pData(data)
+        genes <- Biobase::fData(data)
       } else {
         E <- data$E
         metadata <- data$targets
+        genes <- data$genes
       }
       accession <- unique(trimws(as.character(metadata[["accession"]])))
       accession <- accession[!is.na(accession) & nzchar(accession)]
-      conditions <- unique(metadata$combined_condition)
-      conditions <- conditions[!is.na(conditions) & nzchar(conditions)]
+      
+      rownames(E) <- genes$Symbol
+      colnames(E) <- metadata$sample
 
-      for (condition in conditions) {
-        sample_indices <- which(metadata$combined_condition == condition)
+      output_file <- file.path(
+        save.dir,
+        paste0(accession, "_norm_data.tsv")
+      )
 
-        E_condition <- E[, sample_indices, drop = FALSE]
-
-        safe_condition <- gsub(
-          "[^[:alnum:]_.-]+",
-          "_",
-          condition
-        )
-        safe_condition <- gsub("_+", "_", safe_condition)
-        safe_condition <- gsub("^_|_$", "", safe_condition)
-
-        output_file <- file.path(
-          save.dir,
-          paste0(accession, "_", safe_condition, "_norm_data.csv")
-        )
-
-        utils::write.table(
-          E_condition,
-          file = output_file,
-          row.names = TRUE,
-          sep = "\t",
-          quote = FALSE
-        )
-      }
+      utils::write.table(
+        E_condition,
+        file = output_file,
+        row.names = TRUE,
+        sep = "\t",
+        quote = FALSE
+      )
     }
   data
 }
@@ -1455,9 +1451,11 @@ annotate_data <- function(data, install_missing = F) {
     #"GeneChip PrimeView Human Gene Expression Array"       = list(pkg = "primeview.db",                    keytype = "PROBEID"), #https://support.bioconductor.org/p/130727/
     "Affymetrix Rat Genome 230A"                           = list(pkg = "rat2302.db",                      keytype = "PROBEID"),
     "Affymetrix Human Gene 2.0 ST"                         = list(pkg = "hugene20sttranscriptcluster.db",  keytype = "PROBEID"),
-    "Affymetrix Mouse Transcriptome Array 1"             = list(pkg = "mta10transcriptcluster.db",       keytype = "PROBEID"),
+    "Affymetrix Mouse Transcriptome Array 1"               = list(pkg = "mta10transcriptcluster.db",       keytype = "PROBEID"),
     "Affymetrix GeneChip Mouse Gene 1.0 ST Array"          = list(pkg = "mogene10sttranscriptcluster.db",  keytype = "PROBEID"),
     "Affymetrix Rat Gene 1.0 ST"                           = list(pkg = "ragene10sttranscriptcluster.db",  keytype = "PROBEID"),
+    "Affymetrix Mouse Genome 430 2.0 Array"                = list(pkg = "mouse4302.db",                    keytype = "PROBEID"),
+    "Affymetrix Human Gene 1.0 ST"                         = list(pkg = "hugene10sttranscriptcluster.db",  keytype = "PROBEID"),
     "Illumina HumanHT-12 v4.0"                             = list(pkg = "illuminaHumanv4.db",              keytype = "PROBEID"),
     "Illumina HumanHT-12 v4"                               = list(pkg = "illuminaHumanv4.db",              keytype = "PROBEID"),  
     "Illumina HumanHT-12 v3"                               = list(pkg = "illuminaHumanv3.db",              keytype = "PROBEID"),
@@ -1510,7 +1508,8 @@ annotate_data <- function(data, install_missing = F) {
   if (supplier %in% c(
     "Agilent-084555 026652QM_RCUG_HomoSapiens",
     "Agilent-074809 SurePrint G3 Mouse GE v2",
-    "Agilent-072363 SurePrint G3 Human GE v3"
+    "Agilent-072363 SurePrint G3 Human GE v3",
+    "Agilent-028005 SurePrint G3 Mouse GE 8x60K Microarray"
   )) {
     gene_col <- intersect(
       c("GeneName", "GENE_NAME", "GeneSymbol", "SYMBOL", "Symbol"), colnames(feature_data)
@@ -1522,11 +1521,15 @@ annotate_data <- function(data, install_missing = F) {
     return(set_feature_data(data, feature_data))
   } else if (supplier %in% c(
     "Agilent miRNA microarray",
+    "Agilent-019159 Rat miRNA",
+    "Agilent-021827 Human miRNA Microarray G4470C",
+    "Agilent-021827 Human miRNA Microarray v2",
+    "Agilent-021827 Human miRNA Microarray v3",
+    "Agilent-035430 mouse miRNA array",
+    "Agilent-050340 Custom Rat miRNA Microarray",
     "Agilent-070155 Mouse miRNA Microarray",
     "Agilent-070156 Human_miRNA_V21.0_Microarray",
-    "Agilent-070156 Human miRNA",
-    "Agilent-050340 Custom Rat miRNA Microarry",
-    "Agilent-019159 Rat miRNA"
+    "Agilent-070156 Human miRNA"
   )) {
     id_col <- intersect(
       c("miRNA_ID", "SystematicName", "ProbeName", "ProbeID"), colnames(feature_data)
@@ -1539,7 +1542,8 @@ annotate_data <- function(data, install_missing = F) {
     return(set_feature_data(data, feature_data))
   } else if (supplier == "Affymetrix GeneChip miRNA 3" || supplier == "Affymetrix GeneChip miRNA 3.0") {
     annot_file <- file.path(
-      "/usr/local/storage/data_microarray/annotations/", "GPL16384_miRNA-3_1-st-v1.annotations.20140513.csv"
+      #"/usr/local/storage/data_microarray/annotations/", "GPL16384_miRNA-3_1-st-v1.annotations.20140513.csv"
+      "C:\\Users\\jonas\\OneDrive\\Desktop\\Semester_4_Bio\\Masterpraktikum\\annotations", "GPL16384_miRNA-3_1-st-v1.annotations.20140513.csv"
     )
     if (!file.exists(annot_file))
       stop("Affymetrix miRNA 3.0 annotation csv not found.")
@@ -1553,6 +1557,23 @@ annotate_data <- function(data, install_missing = F) {
       match(probe_ids, annot[["Probe Set ID"]])
     ]
     return(set_feature_data(data, feature_data))
+  } else if (supplier == "Affymetrix GeneChip miRNA 4" || supplier == "Affymetrix GeneChip miRNA 4.0") {
+      annot_file <- file.path(
+        #"/usr/local/storage/data_microarray/annotations/", "miRNA-4_0-st-v1.annotations.20160922.csv"
+        "C:\\Users\\jonas\\OneDrive\\Desktop\\Semester_4_Bio\\Masterpraktikum\\annotations", "miRNA-4_0-st-v1.annotations.20160922.csv"
+      )
+      if (!file.exists(annot_file))
+        stop("Affymetrix miRNA 4.0 annotation csv not found.")
+      annot <- read.csv(annot_file, comment.char = "#", stringsAsFactors = F, check.names = F)
+      probe_ids <- if (is_biobase) {
+        Biobase::featureNames(data)
+      } else {
+        as.character(feature_data$ProbeName)
+      }
+      feature_data$Symbol <- annot[["Transcript ID(Array Design)"]][
+        match(probe_ids, annot[["Probe Set Name"]])
+      ]
+      return(set_feature_data(data, feature_data))
   } else stop("chip not implemented!")
 }
 
@@ -2231,7 +2252,7 @@ clean_genes <- function(data, symbol_col = "Symbol", remove_controls = T, verbos
       is_control <- is_control | grepl("^(DarkCorner|SCorner|NC[0-9]+_)", feature_id, ignore.case = T, perl = T)
     }
 
-    if (!is.na(supplier) && supplier %in% c("Affymetrix GeneChip miRNA 3.0", "Affymetrix GeneChip miRNA 3") &&
+    if (!is.na(supplier) && supplier %in% c("Affymetrix GeneChip miRNA 3.0", "Affymetrix GeneChip miRNA 3", "Affymetrix GeneChip miRNA 4.0", "Affymetrix GeneChip miRNA 4") &&
       "SequenceType" %in% colnames(genes)) {
       sequence_type <- trimws(tolower(as.character(genes$SequenceType)))
       is_control <- is_control | (!is.na(sequence_type) & nzchar(sequence_type) & sequence_type != "mirna")
