@@ -1542,8 +1542,8 @@ annotate_data <- function(data, install_missing = F) {
     return(set_feature_data(data, feature_data))
   } else if (supplier == "Affymetrix GeneChip miRNA 3" || supplier == "Affymetrix GeneChip miRNA 3.0") {
     annot_file <- file.path(
-      #"/usr/local/storage/data_microarray/annotations/", "GPL16384_miRNA-3_1-st-v1.annotations.20140513.csv"
-      "C:\\Users\\jonas\\OneDrive\\Desktop\\Semester_4_Bio\\Masterpraktikum\\annotations", "GPL16384_miRNA-3_1-st-v1.annotations.20140513.csv"
+      "/usr/local/storage/data_microarray/annotations/", "GPL16384_miRNA-3_1-st-v1.annotations.20140513.csv"
+      #"C:\\Users\\jonas\\OneDrive\\Desktop\\Semester_4_Bio\\Masterpraktikum\\annotations", "GPL16384_miRNA-3_1-st-v1.annotations.20140513.csv"
     )
     if (!file.exists(annot_file))
       stop("Affymetrix miRNA 3.0 annotation csv not found.")
@@ -1559,8 +1559,8 @@ annotate_data <- function(data, install_missing = F) {
     return(set_feature_data(data, feature_data))
   } else if (supplier == "Affymetrix GeneChip miRNA 4" || supplier == "Affymetrix GeneChip miRNA 4.0") {
       annot_file <- file.path(
-        #"/usr/local/storage/data_microarray/annotations/", "miRNA-4_0-st-v1.annotations.20160922.csv"
-        "C:\\Users\\jonas\\OneDrive\\Desktop\\Semester_4_Bio\\Masterpraktikum\\annotations", "miRNA-4_0-st-v1.annotations.20160922.csv"
+        "/usr/local/storage/data_microarray/annotations/", "miRNA-4_0-st-v1.annotations.20160922.csv"
+        #"C:\\Users\\jonas\\OneDrive\\Desktop\\Semester_4_Bio\\Masterpraktikum\\annotations", "miRNA-4_0-st-v1.annotations.20160922.csv"
       )
       if (!file.exists(annot_file))
         stop("Affymetrix miRNA 4.0 annotation csv not found.")
