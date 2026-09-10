@@ -1357,7 +1357,7 @@ normalization <- function(raw_data, annotate = T, clean.genes = T, condition_col
       )
 
       utils::write.table(
-        E_condition,
+        E,
         file = output_file,
         row.names = TRUE,
         sep = "\t",
