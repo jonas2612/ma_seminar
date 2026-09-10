@@ -23,7 +23,7 @@ source("code/microarray_functions.R")
 
 dataset_accessions <- c(
   #"GSE105449", bad
-  "GSE87721",
+  #"GSE87721", #non-finite residuals
   "GSE168149",
   "GSE89858",
   # "GSE111794", douplicated
