@@ -1,24 +1,38 @@
 source("code/microarray_functions.R")
 
-dataset_accessions <- c(
-  "GSE152884",#
-  "GSE72633",#
-  "GSE42419",#
+#dataset_accessions <- c(
+#  "GSE152884",#
+#  "GSE72633",#
+ # "GSE42419",#
   #"GSE152625",# DEA: no finite residual standard deviations
-  "GSE28117",#
-  "GSE111782",#
-  "GSE111794",#
-  "GSE137578",#
-  "GSE137580",#
-  "GSE137581",#
-  "GSE137582",#
-  "GSE205119",#
-  "GSE205120",#
-  "GSE48006",# contains three unknown samples!! GSMXXXn
-  "GSE20739",#
-  "GSE72180",#
-  "GSE66624",#
-  "GSE20060"#
+#  "GSE28117",#
+#  "GSE111782",#
+#  "GSE111794",#
+#  "GSE137578",#
+#  "GSE137580",#
+#  "GSE137581",#
+#  "GSE137582",#
+#  "GSE205119",#
+#  "GSE205120",#
+#  "GSE48006",# contains three unknown samples!! GSMXXXn
+#  "GSE20739",#
+#  "GSE72180",#
+#  "GSE66624",#
+#  "GSE20060"#
+#)
+
+dataset_accessions <- c(
+  #"GSE105449", bad
+  "GSE87721",
+  "GSE168149",
+  "GSE89858",
+  # "GSE111794", douplicated
+  "GSE99188",
+  #"GSE28858"#, #figure sep out
+  #"GSE34571", # .gpr files
+  "GSE59421",
+  "GSE49670",
+  "GSE109284"
 )
 
 for (ds in dataset_accessions) download_microarray_data(ds, "/usr/local/storage/data_microarray/raw_data")
@@ -173,8 +187,78 @@ contrasts = list(
     ),
     GSE20060 = list(
         c("||chow|Ctrl|WT||", "||chow|oxPAPC|WT||")
+    ),
+    GSE87721 = list(
+      c("m|8|||Apoe -/-, Dicer +/+||", "m|8||EIF2C2|Apoe -/-, Dicer +/+||"),
+      c("m|8|||Apoe -/-, Dicer +/+||", "m|8||IgG|Apoe -/-, Dicer +/+||"),
+      c("m|8|||Apoe -/-, Dicer +/+||", "m|8|||Apoe-/-, Dicer-/-||"),
+      c("m|8|||Apoe -/-, Dicer +/+||", "m|8||EIF2C2|Apoe-/-, Dicer-/-||"),
+      c("m|8|||Apoe -/-, Dicer +/+||", "m|8||IgG|Apoe-/-, Dicer-/-||"),
+      c("m|8||EIF2C2|Apoe -/-, Dicer +/+||", "m|8||IgG|Apoe -/-, Dicer +/+||"),
+      c("m|8||EIF2C2|Apoe -/-, Dicer +/+||", "m|8|||Apoe-/-, Dicer-/-||"),
+      c("m|8||EIF2C2|Apoe -/-, Dicer +/+||", "m|8||EIF2C2|Apoe-/-, Dicer-/-||"),
+      c("m|8||EIF2C2|Apoe -/-, Dicer +/+||", "m|8||IgG|Apoe-/-, Dicer-/-||"),
+      c("m|8||IgG|Apoe -/-, Dicer +/+||", "m|8|||Apoe-/-, Dicer-/-||"),
+      c("m|8||IgG|Apoe -/-, Dicer +/+||", "m|8||EIF2C2|Apoe-/-, Dicer-/-||"),
+      c("m|8||IgG|Apoe -/-, Dicer +/+||", "m|8||IgG|Apoe-/-, Dicer-/-||"),
+      c("m|8|||Apoe-/-, Dicer-/-||", "m|8||EIF2C2|Apoe-/-, Dicer-/-||"),
+      c("m|8|||Apoe-/-, Dicer-/-||", "m|8||IgG|Apoe-/-, Dicer-/-||"),
+      c("m|8||EIF2C2|Apoe-/-, Dicer-/-||", "m|8||IgG|Apoe-/-, Dicer-/-||")
+    ),
+    GSE168149 = list( #Factor: cell_type
+      c("||||||Ctrl", "||||||MI"),
+      c("||||||MI", "||||||sCAD")
+    ),
+    GSE89858 = list(
+      c("m|0|chow||Apob-/-, Ldlt-/-||", "m|6|chow||Apob-/-, Ldlt-/-||"),
+      c("m|0|chow||Apob-/-, Ldlt-/-||", "m|6|chow||Apob-/-, Ldlt-/-||"),
+      c("m|0|chow||Apob-/-, Ldlt-/-||", "m|6|HFD||Apob-/-, Ldlt-/-||"),
+      c("m|0|chow||Apob-/-, Ldlt-/-||", "m|18|chow||Apob-/-, Ldlt-/-||"),
+      c("m|0|chow||Apob-/-, Ldlt-/-||", "m|18|HFD||Apob-/-, Ldlt-/-||"),
+      c("m|0|chow||Apob-/-, Ldlt-/-||", "m|30|chow||Apob-/-, Ldlt-/-||"),
+      c("m|0|chow||Apob-/-, Ldlt-/-||", "m|30|HFD||Apob-/-, Ldlt-/-||"),
+      c("m|6|chow||Apob-/-, Ldlt-/-||", "m|6|HFD||Apob-/-, Ldlt-/-||"),
+      c("m|6|chow||Apob-/-, Ldlt-/-||", "m|18|chow||Apob-/-, Ldlt-/-||"),
+      c("m|6|chow||Apob-/-, Ldlt-/-||", "m|18|HFD||Apob-/-, Ldlt-/-||"),
+      c("m|6|chow||Apob-/-, Ldlt-/-||", "m|30|chow||Apob-/-, Ldlt-/-||"),
+      c("m|6|chow||Apob-/-, Ldlt-/-||", "m|30|HFD||Apob-/-, Ldlt-/-||"),
+      c("m|6|HFD||Apob-/-, Ldlt-/-||", "m|18|chow||Apob-/-, Ldlt-/-||"),
+      c("m|6|HFD||Apob-/-, Ldlt-/-||", "m|18|HFD||Apob-/-, Ldlt-/-||"),
+      c("m|6|HFD||Apob-/-, Ldlt-/-||", "m|30|chow||Apob-/-, Ldlt-/-||"),
+      c("m|6|HFD||Apob-/-, Ldlt-/-||", "m|30|HFD||Apob-/-, Ldlt-/-||"),
+      c("m|18|chow||Apob-/-, Ldlt-/-||", "m|18|HFD||Apob-/-, Ldlt-/-||"),
+      c("m|18|chow||Apob-/-, Ldlt-/-||", "m|30|chow||Apob-/-, Ldlt-/-||"),
+      c("m|18|chow||Apob-/-, Ldlt-/-||", "m|30|HFD||Apob-/-, Ldlt-/-||"),
+      c("m|18|HFD||Apob-/-, Ldlt-/-||", "m|30|chow||Apob-/-, Ldlt-/-||"),
+      c("m|18|HFD||Apob-/-, Ldlt-/-||", "m|30|HFD||Apob-/-, Ldlt-/-||"),
+      c("m|30|chow||Apob-/-, Ldlt-/-||", "m|30|HFD||Apob-/-, Ldlt-/-||")
+    ),
+    GSE99188 = list(
+      c("|25|chow||ApoE-/-||", "|25|high methionine||ApoE-/-||")
+    ),
+    GSE59421 = list( #other response, covariates age, sample_nr
+      c("CAD", "Ctrl_non_med"),
+      c("Ctrl_non_med", "Ctrl_after_med")
+    ),
+    GSE49670 = list( #other response, covariates age, sex
+      c("enriched", "depleted")
+    ),
+    GSE109284 = list(
+      c("||||WT||", "|||LPS(24h)|WT||"),
+      c("||||WT||", "||||Lrx-d-/-||"),
+      c("||||WT||", "|||LPS(24h)|Lrx-d-/-||"),
+      c("|||LPS(24h)|WT||", "||||Lrx-d-/-||"),
+      c("|||LPS(24h)|WT||", "|||LPS(24h)|Lrx-d-/-||"),
+      c("||||Lrx-d-/-||", "|||LPS(24h)|Lrx-d-/-||")
     )
 )
+
+covariates <- list(
+  GSE59421 = c("age"),
+  GSE49670 = c("age", "sex")
+)
+
+exceptions = c("GSE59421", "GSE49670")
 
 for (ds in dataset_accessions) {
   message("\n==============================")
@@ -222,6 +306,21 @@ for (ds in dataset_accessions) {
         "_vs_",
         condition_ref_safe
     )
-    dea <- run_dea(data2, "combined_condition", contrast_str = contrast_expression, save.view = T, save.dir = paste0("/usr/local/storage/data_microarray/dea"))
+    if (ds %in% exceptions) {
+      dea <- run_dea(
+        data2, 
+         "Other", 
+        contrast_str = contrast_expression, 
+        covariate_cols = covariates[[ds]],
+        save.view = T, 
+        save.dir = paste0("/usr/local/storage/data_microarray/dea"))
+    } else {
+      dea <- run_dea(
+        data2, 
+        "combined_condition", 
+        contrast_str = contrast_expression, 
+        save.view = T, 
+        save.dir = paste0("/usr/local/storage/data_microarray/dea"))
+    }
   }
 }
