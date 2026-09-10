@@ -1,27 +1,24 @@
 source("code/microarray_functions.R")
 
-#dataset_accessions <- c(
-#  "GSE152884",#
-#  "GSE72633",#
- # "GSE42419",#
-  #"GSE152625",# DEA: no finite residual standard deviations
-#  "GSE28117",#
-#  "GSE111782",#
-#  "GSE111794",#
-#  "GSE137578",#
-#  "GSE137580",#
-#  "GSE137581",#
-#  "GSE137582",#
-#  "GSE205119",#
-#  "GSE205120",#
-#  "GSE48006",# contains three unknown samples!! GSMXXXn
-#  "GSE20739",#
-#  "GSE72180",#
-#  "GSE66624",#
-#  "GSE20060"#
-#)
-
 dataset_accessions <- c(
+  "GSE152884",#
+  "GSE72633",#
+  "GSE42419",#
+  #"GSE152625",# DEA: no finite residual standard deviations
+  "GSE28117",#
+  "GSE111782",#
+  "GSE111794",#
+  "GSE137578",#
+  "GSE137580",#
+  "GSE137581",#
+  "GSE137582",#
+  "GSE205119",#
+  "GSE205120",#
+  "GSE48006",# contains three unknown samples!! GSMXXXn
+  "GSE20739",#
+  "GSE72180",#
+  "GSE66624",#
+  "GSE20060",#
   #"GSE105449", bad
   #"GSE87721", #non-finite residuals
   "GSE168149",
@@ -31,8 +28,8 @@ dataset_accessions <- c(
   #"GSE28858"#, #figure sep out
   #"GSE34571", # .gpr files
   "GSE59421",
-  "GSE49670",
-  "GSE109284"
+  "GSE49670"
+  #"GSE109284" #non-finite resilduals
 )
 
 for (ds in dataset_accessions) download_microarray_data(ds, "/usr/local/storage/data_microarray/raw_data")
@@ -206,8 +203,42 @@ contrasts = list(
       c("m|8||EIF2C2|Apoe-/-, Dicer-/-||", "m|8||IgG|Apoe-/-, Dicer-/-||")
     ),
     GSE168149 = list( #Factor: cell_type
-      c("||||||Ctrl", "||||||MI"),
-      c("||||||MI", "||||||sCAD")
+      c("||||||classical_monocytes|Ctrl", "||||||intermediate_monocytes|Ctrl"),
+      c("||||||classical_monocytes|Ctrl", "||||||non-classical_moncytes|Ctrl"),
+      c("||||||classical_monocytes|Ctrl", "||||||classical_monocytes|MI"),
+      c("||||||classical_monocytes|Ctrl", "||||||intermediate_monocytes|MI"),
+      c("||||||classical_monocytes|Ctrl", "||||||non-classical_moncytes|MI"),
+      c("||||||classical_monocytes|Ctrl", "||||||classical_monocytes|sCAD"),
+      c("||||||classical_monocytes|Ctrl", "||||||intermediate_monocytes|sCAD"),
+      c("||||||classical_monocytes|Ctrl", "||||||non-classical_moncytes|sCAD"),
+      c("||||||intermediate_monocytes|Ctrl", "||||||non-classical_moncytes|Ctrl"),
+      c("||||||intermediate_monocytes|Ctrl", "||||||classical_monocytes|MI"),
+      c("||||||intermediate_monocytes|Ctrl", "||||||intermediate_monocytes|MI"),
+      c("||||||intermediate_monocytes|Ctrl", "||||||non-classical_moncytes|MI"),
+      c("||||||intermediate_monocytes|Ctrl", "||||||classical_monocytes|sCAD"),
+      c("||||||intermediate_monocytes|Ctrl", "||||||intermediate_monocytes|sCAD"),
+      c("||||||intermediate_monocytes|Ctrl", "||||||non-classical_moncytes|sCAD"),
+      c("||||||non-classical_moncytes|Ctrl", "||||||classical_monocytes|MI"),
+      c("||||||non-classical_moncytes|Ctrl", "||||||intermediate_monocytes|MI"),
+      c("||||||non-classical_moncytes|Ctrl", "||||||non-classical_moncytes|MI"),
+      c("||||||non-classical_moncytes|Ctrl", "||||||classical_monocytes|sCAD"),
+      c("||||||non-classical_moncytes|Ctrl", "||||||intermediate_monocytes|sCAD"),
+      c("||||||non-classical_moncytes|Ctrl", "||||||non-classical_moncytes|sCAD"),
+      c("||||||classical_monocytes|MI", "||||||intermediate_monocytes|MI"),
+      c("||||||classical_monocytes|MI", "||||||non-classical_moncytes|MI"),
+      c("||||||classical_monocytes|MI", "||||||classical_monocytes|sCAD"),
+      c("||||||classical_monocytes|MI", "||||||intermediate_monocytes|sCAD"),
+      c("||||||classical_monocytes|MI", "||||||non-classical_moncytes|sCAD"),
+      c("||||||intermediate_monocytes|MI", "||||||non-classical_moncytes|MI"),
+      c("||||||intermediate_monocytes|MI", "||||||classical_monocytes|sCAD"),
+      c("||||||intermediate_monocytes|MI", "||||||intermediate_monocytes|sCAD"),
+      c("||||||intermediate_monocytes|MI", "||||||non-classical_moncytes|sCAD"),
+      c("||||||non-classical_moncytes|MI", "||||||classical_monocytes|sCAD"),
+      c("||||||non-classical_moncytes|MI", "||||||intermediate_monocytes|sCAD"),
+      c("||||||non-classical_moncytes|MI", "||||||non-classical_moncytes|sCAD"),
+      c("||||||classical_moncytes|sCAD", "||||||intermediate_monocytes|sCAD"),
+      c("||||||classical_moncytes|sCAD", "||||||non-classical_moncytes|sCAD"),
+      c("||||||intermediate_monocytes|sCAD", "||||||non-classical_moncytes|sCAD")
     ),
     GSE89858 = list(
       c("m|0|chow||Apob-/-, Ldlt-/-||", "m|6|chow||Apob-/-, Ldlt-/-||"),
