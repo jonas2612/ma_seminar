@@ -21,6 +21,7 @@ import pandas as pd
 import scanpy as sc
 import scipy.sparse as sp
 from tqdm import tqdm
+from mousipy import translate
 
 ad.settings.allow_write_nullable_strings = True
 
@@ -449,10 +450,14 @@ def annotate_adata(
     tmp_path.mkdir()
 
     new_obs = []
+    species = adata.obs['species'].unique()[0]
     for enum, i in tqdm(enumerate(range(0, adata.n_obs, split_size))):
         curr_save_path = tmp_path / f"adata_{enum}.h5ad"
         curr_output_dir = tmp_path / f"outdir_{enum}"
-        adata[i:(i+split_size)].write(curr_save_path)
+        tmp = adata[i:(i+split_size)].copy()
+        if species == "Mouse":
+            tmp = translate(tmp)
+        tmp.write(curr_save_path)
         logger.info("Running annotation ...")
         if output_dir_images is None:
             subprocess.run([

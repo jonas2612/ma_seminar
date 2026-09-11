@@ -20,6 +20,14 @@ datasets_and_contrasts = {
     "GSE260657": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]},
     "GSE253903": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]},
     "GSE159677": {"cond_col": "cell_type", "contrast": [("plaque adjacent", "plaque")]},
+    "GSE260656": {"cond_col": "combined_condition", "contrast":[("|10w|||WT||", "|30w|||LDLR -/-, ApoB100/100||"),
+                                                                ("|10w|||WT||", "|45w|||LDLR -/-, ApoB100/100||"),
+                                                                ("|10w|||WT||", "|60w|||LDLR -/-, ApoB100/100||"),
+                                                                ("|30w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||"),
+                                                                ("|30w|||LDLR -/-, ApoB100/100||", "|60w|||LDLR -/-, ApoB100/100||"),
+                                                                ("|60w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||"),
+                                                                ("|60w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||"),
+                                                                ("|20w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||")]}
 }
 
 for key, value in datasets_and_contrasts.items():
@@ -34,7 +42,10 @@ for key, value in datasets_and_contrasts.items():
         adata = qc_statistical(adata, logger)
         adata = doublet_detection(adata, logger)
         adatas.append(adata)
-    adata = combine_samples(adatas, logger)
+    if key == "GSE260656":
+        adata = combine_samples(adatas, logger, species="Mouse")
+    else:
+        adata = combine_samples(adatas, logger)
     adata = normalize_data(adata, logger)
     adata = pca(adata, logger)
     adata = neighbors(adata, logger)
