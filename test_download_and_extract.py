@@ -6,7 +6,7 @@ import logging
 from tqdm import tqdm
 
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s [%(levelname)s]: %(message)s"
+    level=logging.DEBUG, format="%(asctime)s [%(levelname)s]: %(message)s"
 )
 logger = logging.getLogger("shape_mapping")
 
@@ -16,10 +16,10 @@ dea_dir = base_dir / "dea"
 annot_dir = base_dir / "annotated_data"
 
 datasets_and_contrasts = {
-    "GSE309462": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]},
-    "GSE260657": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]},
-    "GSE253903": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]},
-    "GSE159677": {"cond_col": "cell_type", "contrast": [("plaque adjacent", "plaque")]},
+   # "GSE309462": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]},
+   # "GSE260657": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]}, # smartseq2 data
+   # "GSE253903": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]},
+   # "GSE159677": {"cond_col": "cell_type", "contrast": [("plaque adjacent", "plaque")]},
     "GSE260656": {"cond_col": "combined_condition", "contrast":[("|10w|||WT||", "|30w|||LDLR -/-, ApoB100/100||"),
                                                                 ("|10w|||WT||", "|45w|||LDLR -/-, ApoB100/100||"),
                                                                 ("|10w|||WT||", "|60w|||LDLR -/-, ApoB100/100||"),
@@ -42,6 +42,8 @@ for key, value in datasets_and_contrasts.items():
         adata = qc_statistical(adata, logger)
         adata = doublet_detection(adata, logger)
         adatas.append(adata)
+    logger.debug("species of datasets:")
+    logger.debug(", ".join([x.obs['species'].unique()[0] for x in adatas]))
     if key == "GSE260656":
         adata = combine_samples(adatas, logger, species="Mouse")
     else:
