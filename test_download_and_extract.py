@@ -33,7 +33,10 @@ datasets_and_contrasts = {
    #                                                             ("||high-fat (16w)||Apoe -/-||", "||chow||Apoe -/-||"),
    #                                                             ("||high-fat (8w)||Apoe -/-||", "||chow||Apoe -/-||")]}
    #"GSE246083": {"cond_col": "combinded_condition", "contrast": [("||||WT||", "||||Atgl ECKO||")]}
-   "GSE150644": {"cond_col": "combinded_condition", "contrast": [("||western diet (18w)||WT||", "||western diet (18w)||Kfl4 KO||")]}
+   #"GSE150644": {"cond_col": "combinded_condition", "contrast": [("||western diet (18w)||WT||", "||western diet (18w)||Kfl4 KO||")]},
+   "GSE248289": {"cond_col": "KO", "contrast": [("Jak2VF, Ldlr -/-", "Jak2VF -/-, Ldlr -/-"),
+                                                ("Jak2VF -/-, Ldlr -/-", "Jak2VF +/+, Ldlr -/-"),
+                                                ("Jak2VF, Ldlr -/-", "Jak2VF +/+, Ldlr -/-")]}
 }
 
 for key, value in datasets_and_contrasts.items():
@@ -50,7 +53,7 @@ for key, value in datasets_and_contrasts.items():
         adatas.append(adata)
     logger.debug("species of datasets:")
     logger.debug(", ".join([x.obs['species'].unique()[0] for x in adatas]))
-    if key in ["GSE260656", "GSE150644", "GSE246083", "GSE131776"]:
+    if key in ["GSE260656", "GSE150644", "GSE246083", "GSE131776", "GSE248289"]:
         adata = combine_samples(adatas, logger, species="Mouse")
     else:
         adata = combine_samples(adatas, logger)
