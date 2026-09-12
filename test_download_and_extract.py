@@ -28,10 +28,11 @@ datasets_and_contrasts = {
    #                                                             ("|60w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||"),
    #                                                             ("|60w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||"),
    #                                                             ("|20w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||")]}
-   "GSE131776": {"cond_col": "combined_condition", "contrast": [("||high-fat (16w)||Tcf21 flx/flx, Apoe -/-||", "||high-fat (8w)||Tcf21 flx/flx, Apoe -/-||"),
-                                                                ("||high-fat (16w)||Apoe -/-||", "||high-fat (8w)||Apoe -/-||"),
-                                                                ("||high-fat (16w)||Apoe -/-||", "||chow||Apoe -/-||"),
-                                                                ("||high-fat (8w)||Apoe -/-||", "||chow||Apoe -/-||")]}
+   #"GSE131776": {"cond_col": "combined_condition", "contrast": [("||high-fat (16w)||Tcf21 flx/flx, Apoe -/-||", "||high-fat (8w)||Tcf21 flx/flx, Apoe -/-||"),
+   #                                                             ("||high-fat (16w)||Apoe -/-||", "||high-fat (8w)||Apoe -/-||"),
+   #                                                             ("||high-fat (16w)||Apoe -/-||", "||chow||Apoe -/-||"),
+   #                                                             ("||high-fat (8w)||Apoe -/-||", "||chow||Apoe -/-||")]}
+   "GSE246083": {"cond_col": "combinded_condition", "contrast": [("||||WT||", "||||Atgl ECKO||")]}
 }
 
 for key, value in datasets_and_contrasts.items():
