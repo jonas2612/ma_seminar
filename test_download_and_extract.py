@@ -50,7 +50,7 @@ for key, value in datasets_and_contrasts.items():
         adatas.append(adata)
     logger.debug("species of datasets:")
     logger.debug(", ".join([x.obs['species'].unique()[0] for x in adatas]))
-    if key == "GSE260656":
+    if key in ["GSE260656", "GSE150644", "GSE246083", "GSE131776"]:
         adata = combine_samples(adatas, logger, species="Mouse")
     else:
         adata = combine_samples(adatas, logger)
