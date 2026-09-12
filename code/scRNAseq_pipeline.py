@@ -328,7 +328,7 @@ def read_raw_data(path: Path, metadata: pd.DataFrame, logger: logging.Logger, sa
     assert len(meta) == 1, "Identified metadata contains more than one rows."
     for col in meta.columns:
         adata.obs[col] = meta.loc[:, col].values[0]
-        if col in ["accession", "chip", "species", "sample", "cell_type", "location", "sex", "diet", "medication", "KO", "combined_condition", "Original Name"]:
+        if col in ["accession", "chip", "species", "sample", "cell_type", "location", "sex", "diet", "medication", "KO", "combined_condition", "Original Name", "Other"]:
             adata.obs[col] = adata.obs[col].astype(str)
         elif col in ["age", "sample_nr"]:
             adata.obs[col] = adata.obs[col].astype("Int64")
