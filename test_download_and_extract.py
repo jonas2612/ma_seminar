@@ -32,7 +32,8 @@ datasets_and_contrasts = {
    #                                                             ("||high-fat (16w)||Apoe -/-||", "||high-fat (8w)||Apoe -/-||"),
    #                                                             ("||high-fat (16w)||Apoe -/-||", "||chow||Apoe -/-||"),
    #                                                             ("||high-fat (8w)||Apoe -/-||", "||chow||Apoe -/-||")]}
-   "GSE246083": {"cond_col": "combinded_condition", "contrast": [("||||WT||", "||||Atgl ECKO||")]}
+   #"GSE246083": {"cond_col": "combinded_condition", "contrast": [("||||WT||", "||||Atgl ECKO||")]}
+   "GSE150644": {"cond_col": "combinded_condition", "contrast": [("||western diet (18w)||WT||", "||western diet (18w)||Kfl4 KO||")]}
 }
 
 for key, value in datasets_and_contrasts.items():
