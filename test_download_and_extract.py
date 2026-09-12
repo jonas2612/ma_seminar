@@ -20,14 +20,18 @@ datasets_and_contrasts = {
    # "GSE260657": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]}, # smartseq2 data
    # "GSE253903": {"cond_col": "symptomatic_atherosclerosis", "contrast": [("False", "True")]},
    # "GSE159677": {"cond_col": "cell_type", "contrast": [("plaque adjacent", "plaque")]},
-    "GSE260656": {"cond_col": "combined_condition", "contrast":[("|10w|||WT||", "|30w|||LDLR -/-, ApoB100/100||"),
-                                                                ("|10w|||WT||", "|45w|||LDLR -/-, ApoB100/100||"),
-                                                                ("|10w|||WT||", "|60w|||LDLR -/-, ApoB100/100||"),
-                                                                ("|30w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||"),
-                                                                ("|30w|||LDLR -/-, ApoB100/100||", "|60w|||LDLR -/-, ApoB100/100||"),
-                                                                ("|60w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||"),
-                                                                ("|60w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||"),
-                                                                ("|20w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||")]}
+   # "GSE260656": {"cond_col": "combined_condition", "contrast":[("|10w|||WT||", "|30w|||LDLR -/-, ApoB100/100||"), # smartseq2
+   #                                                             ("|10w|||WT||", "|45w|||LDLR -/-, ApoB100/100||"),
+   #                                                             ("|10w|||WT||", "|60w|||LDLR -/-, ApoB100/100||"),
+   #                                                             ("|30w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||"),
+   #                                                             ("|30w|||LDLR -/-, ApoB100/100||", "|60w|||LDLR -/-, ApoB100/100||"),
+   #                                                             ("|60w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||"),
+   #                                                             ("|60w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||"),
+   #                                                             ("|20w|||LDLR -/-, ApoB100/100||", "|20w|||LDLR -/-, ApoB100/100||")]}
+   "GSE131776": {"cond_col": "combined_condition", "contrast": [("||high-fat (16w)||Tcf21 flx/flx, Apoe -/-||", "||high-fat (8w)||Tcf21 flx/flx, Apoe -/-||"),
+                                                                ("||high-fat (16w)||Apoe -/-||", "||high-fat (8w)||Apoe -/-||"),
+                                                                ("||high-fat (16w)||Apoe -/-||", "||chow||Apoe -/-||"),
+                                                                ("||high-fat (8w)||Apoe -/-||", "||chow||Apoe -/-||")]}
 }
 
 for key, value in datasets_and_contrasts.items():
