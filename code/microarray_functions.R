@@ -2283,7 +2283,7 @@ collapse_duplicate_genes <- function(data, symbol_col = "Symbol", method=c("mean
     )
   }
   
-  attr(collapsed, "gene_collapse_audit") <- collapse_audit
+  attr(collapsed, "gene_collapse_audit") <- audit
   attr(collapsed, "gene_collapse_method") <- method
   attr(collapsed, "feature_level") <- "gene"
   
