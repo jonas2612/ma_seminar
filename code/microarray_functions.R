@@ -2246,7 +2246,7 @@ collapse_duplicate_genes <- function(data, symbol_col = "Symbol", method=c("mean
   }, integer(1))
   collapsed_genes <- genes[representative_idx, , drop = F]
   collapsed_genes[[symbol_col]] <- gene_order
-  collapsed_genes$n_probes_collapsed <- uname(n_probes[gene_order])
+  collapsed_genes$n_probes_collapsed <- unname(n_probes[gene_order])
   collapsed_genes$source_probes <- vapply(gene_order, function (symbol) {
     paste(probe_ids[split_idx[[symbol]]], collapse = ";")
   }, character(1))
