@@ -330,14 +330,14 @@ for (ds in dataset_accessions) {
   )
   save_expression_matrix(data1, save.dir = "/usr/local/storage/data_microarray/background_corrected", save.name = paste0(ds, "_background_corr_data.tsv"))
   data2 <- normalization(raw_data)
-  data2 <- annotate(data2)
+  data2 <- annotate_data(data2)
   data2 <- clean_genes(data2)
   data2 <- collapse_duplicate_genes(
     data2,
     symbol_col = "Symbol",
     method = "mean"
   )
-  save_expression_matrix(data1, save.dir = paste0("/usr/local/storage/data_microarray/normalized"), save.name = paste0(ds, "_norm_data.tsv"))
+  save_expression_matrix(data2, save.dir = paste0("/usr/local/storage/data_microarray/normalized"), save.name = paste0(ds, "_norm_data.tsv"))
 
   dataset_contrasts <- contrasts[[ds]]
   metadata <- if (inherits(data2, c("ExpressionSet", "ExpressionFeatureSet"))) {
