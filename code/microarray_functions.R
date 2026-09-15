@@ -2242,7 +2242,7 @@ collapse_duplicate_genes <- function(data, symbol_col = "Symbol", method=c("mean
     idx <- split_idx[[symbol]]
     if (length(idx) == 1L) return(idx)
     if (method == "max_mean") return(idx[which.max(rowMeans(E[idx, , drop=F], na.rm = T))])
-    idx[which.max(rowMeansE[idx, , drop = F], na.rm = T)]
+    idx[which.max(rowMeans(E[idx, , drop = F], na.rm = T))]
   }, integer(1))
   collapsed_genes <- genes[representative_idx, , drop = F]
   collapsed_genes[[symbol_col]] <- gene_order
