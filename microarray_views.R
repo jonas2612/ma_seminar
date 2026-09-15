@@ -1,35 +1,59 @@
 source("code/microarray_functions.R")
 
+#dataset_accessions <- c(
+#  "GSE152884",#
+#  "GSE72633",#
+#  "GSE42419",#
+#  #"GSE152625",# DEA: no finite residual standard deviations
+#  "GSE28117",#
+#  "GSE111782",#
+#  "GSE111794",#
+#  "GSE137578",#
+#  "GSE137580",#
+#  "GSE137581",#
+#  "GSE137582",#
+#  "GSE205119",#
+#  "GSE205120",#
+#  "GSE48006",# contains three unknown samples!! GSMXXXn
+#  "GSE20739",#
+#  "GSE72180",#
+#  "GSE66624",#
+#  "GSE20060",#
+#  #"GSE105449", bad
+#  #"GSE87721", #non-finite residuals
+#  "GSE168149",
+#  "GSE89858",
+#  # "GSE111794", douplicated
+#  "GSE99188",
+#  #"GSE28858"#, #figure sep out
+#  #"GSE34571", # .gpr files
+#  "GSE59421",
+#  "GSE49670"
+#  #"GSE109284" #non-finite resilduals
+#)
+
 dataset_accessions <- c(
-  "GSE152884",#
-  "GSE72633",#
-  "GSE42419",#
-  #"GSE152625",# DEA: no finite residual standard deviations
-  "GSE28117",#
-  "GSE111782",#
-  "GSE111794",#
-  "GSE137578",#
-  "GSE137580",#
-  "GSE137581",#
-  "GSE137582",#
-  "GSE205119",#
-  "GSE205120",#
-  "GSE48006",# contains three unknown samples!! GSMXXXn
-  "GSE20739",#
-  "GSE72180",#
-  "GSE66624",#
-  "GSE20060",#
-  #"GSE105449", bad
-  #"GSE87721", #non-finite residuals
-  "GSE168149",
-  "GSE89858",
-  # "GSE111794", douplicated
-  "GSE99188",
-  #"GSE28858"#, #figure sep out
-  #"GSE34571", # .gpr files
+  "GSE20060",
+  "GSE20739",
+  "GSE28117",
+  "GSE42419",
+  "GSE48006",
+  "GSE49670",
   "GSE59421",
-  "GSE49670"
-  #"GSE109284" #non-finite resilduals
+  "GSE66624",
+  "GSE72180",
+  "GSE72633",
+  "GSE89858",
+  "GSE99188",
+  "GSE111794",
+  "GSE111782",
+  "GSE137578",
+  "GSE137580",
+  "GSE137581",
+  "GSE137582",
+  "GSE168149",
+  "GSE205119",
+  "GSE205120"
 )
 
 for (ds in dataset_accessions) download_microarray_data(ds, "/usr/local/storage/data_microarray/raw_data")
@@ -296,12 +320,24 @@ for (ds in dataset_accessions) {
   message("Working on ", ds)
   message("==============================")
   raw_data <- load_data(paste0("/usr/local/storage/data_microarray/raw_data/", ds), "/home/f/flor/metadata_all_samples.txt", sep = if (ds == "GSE72180") "_" else ".")
-  data1 <- background_correction(raw_data, save.view = T, 
-  save.dir = paste0("/usr/local/storage/data_microarray/background_corrected")
+  data1 <- background_correction(raw_data)
+  data1 <- annotate_data(data1)
+  data1 <- clean_genes(data1)
+  data1 <- collapse_duplicate_genes(
+    data1,
+    symbol_col = "Symbol",
+    method = "mean"
   )
-  data2 <- normalization(raw_data, save.view = T, 
-  save.dir = paste0("/usr/local/storage/data_microarray/normalized")
+  save_expression_matrix(data1, save.dir = "/usr/local/storage/data_microarray/background_corrected", save.name = paste0(ds, "_background_corr_data.tsv"))
+  data2 <- normalization(raw_data)
+  data2 <- annotate(data2)
+  data2 <- clean_genes(data2)
+  data2 <- collapse_duplicate_genes(
+    data2,
+    symbol_col = "Symbol",
+    method = "mean"
   )
+  save_expression_matrix(data1, save.dir = paste0("/usr/local/storage/data_microarray/normalized"), save.name = paste0(ds, "_norm_data.tsv"))
 
   dataset_contrasts <- contrasts[[ds]]
   metadata <- if (inherits(data2, c("ExpressionSet", "ExpressionFeatureSet"))) {

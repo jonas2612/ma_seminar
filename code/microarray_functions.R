@@ -832,7 +832,29 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
     targets_path <- file.path(data_dir, "targets.txt")
     utils::write.table(targets, file = targets_path, sep = "\t", quote = F, row.names = F)
     targets <- AgiMicroRna::readTargets(targets_path)
-    raw_data <- AgiMicroRna::readMicroRnaAFE(targets = targets, verbose = F)
+    if (supplier == "Agilent-021827 Human miRNA Microarray G4470C") {
+      raw_data <- AgiMicroRna:::read.agiMicroRna(targets = targets,
+                                                 columns = list(
+                                                   TGS = "gTotalGeneSignal",
+                                                   TPS = "gTotalProbeSignal",
+                                                   procS = "gProcessedSignal"
+                                                 ),
+                                                 other.columns = list(
+                                                   IsGeneDetected = "gIsGeneDetected",
+                                                   IsSaturated = "gIsSaturated",
+                                                   IsFeatNonUnif0l = "gIsFeatNonUnif0L",
+                                                   IsFeatPopn0L = "gIsFeatNonUnif0L",
+                                                   BGKmd = "gBGMedianSignal"
+                                                 ),
+                                                 annotation = c(
+                                                   "ControlType",
+                                                   "ProbeName",
+                                                   "SystematicName"
+                                                 ),
+                                                 verbose = F)
+    } else {
+      raw_data <- AgiMicroRna::readMicroRnaAFE(targets = targets, verbose = F)      
+    }
     sample_ids <- colnames(raw_data$TGS)
     raw_data$targets <- targets[sample_ids, , drop = FALSE]
     feature_ids <- make.unique(raw_data$genes$ProbeName, sep = "__dup")
@@ -982,6 +1004,29 @@ read_ilmn_matrix_safe <- function(
 
     signal_col <- !probe_col & !detection_col
   }
+  
+  detection_by_position <- F
+  
+  if (!any(detection_col)) {
+    bare_detection_col <- grepl(
+      "^Detection[[:space:]_.]*(?:P(?:VAL|VALUE))?$",
+      header_names, ignore.case = T, perl = T
+    )
+    base_detection_idx <- which(bare_detection_col)
+    if (length(bare_detection_idx)) {
+      preceding_idx <- bare_detection_idx - 1L
+      valid_layout <- all(bare_detection_idx > 1L) && 
+        all(!probe_col[preceding_idx] && 
+              length(unique(preceding_idx))==length(preceding_idx))
+      if (valid_layout) {
+        detection_col <- bare_detection_col
+        detection_by_position <- T
+        if (!suffix_present) {
+          signal_col <- !probe_col & !detection_col
+        }
+      }
+    }
+  }
 
   annotation_col <- !probe_col & !signal_col & !detection_col
 
@@ -1052,43 +1097,64 @@ read_ilmn_matrix_safe <- function(
   other_list <- list()
 
   if (any(detection_col)) {
-    detection_mat <- as.matrix(full[, detection_col, drop = FALSE])
-    storage.mode(detection_mat) <- "double"
-
-    detection_names <- colnames(detection_mat)
-
-    detection_sample_ids <- sub(
-      paste0(
-        suffix_sep_pattern,
-        "(?:",
-        other_esc,
-        ")",
-        "(?:",
-        "[ _.]?",
-        "P(?:VAL|VALUE)",
-        ")?$"
-      ),
-      "",
-      detection_names,
-      ignore.case = TRUE,
-      perl = TRUE
-    )
-
-    if (setequal(detection_sample_ids, sample_ids)) {
-      detection_mat <- detection_mat[
-        ,
-        match(sample_ids, detection_sample_ids),
-        drop = FALSE
-      ]
+    if (detection_by_position) {
+      detection_idx <- which(detection_col)
+      expression_idx <- which(signal_col)
+      expected_expression_idx <- detection_idx - 1L
+      if (length(detection_idx) != length(expression_idx) || !identical(expected_expression_idx, expression_idx)) {
+        stop("Position based detection of p-value failed.")
+      }
+      
+      detection_mat <- as.matrix(full[, detection_col, drop = F])
+      storage.mode(detection_mat) <- "double"
       colnames(detection_mat) <- sample_ids
     } else {
-      warning(
-        "Detection-p-value columns cannot be aligned one-to-one with ",
-        "signal columns. Detection data will be retained but not renamed."
+      detection_mat <- as.matrix(full[, detection_col, drop = FALSE])
+      storage.mode(detection_mat) <- "double"
+  
+      detection_names <- colnames(detection_mat)
+  
+      detection_sample_ids <- sub(
+        paste0(
+          suffix_sep_pattern,
+          "(?:",
+          other_esc,
+          ")",
+          "(?:",
+          "[ _.]?",
+          "P(?:VAL|VALUE)",
+          ")?$"
+        ),
+        "",
+        detection_names,
+        ignore.case = TRUE,
+        perl = TRUE
       )
+  
+      if (setequal(detection_sample_ids, sample_ids)) {
+        detection_mat <- detection_mat[
+          ,
+          match(sample_ids, detection_sample_ids),
+          drop = FALSE
+        ]
+        colnames(detection_mat) <- sample_ids
+      } else {
+        warning(
+          "Detection-p-value columns cannot be aligned one-to-one with ",
+          "signal columns. Detection data will be retained but not renamed."
+        )
+      }
     }
-
-    other_list[["Detection PValue"]] <- detection_mat
+    if (identical(dim(detection_mat), dim(expr_mat)) &&
+        identical(colnames(detection_mat), colnames(expr_mat))) {
+      other_list[["Detection PValue"]] <- detection_mat
+    } else {
+      warning(
+        "Detection columns could not be stored as 'Detection PValue' ",
+        "because they are not aligned to the expression matrix."
+      )
+      other_list[["Detection PValue"]] <- detection_mat
+    }
   }
 
   genes <- full[, probe_col | annotation_col, drop = FALSE]
@@ -1198,7 +1264,34 @@ detection_pval <- function(raw_data) {
   detectionName
 }
 
-background_correction <- function(raw_data, annotate = T, clean.genes = T, condition_col = "combined_condition", save.view = F, save.dir = NULL) {
+save_expression_matrix <- function(data, save.dir, save.name) {
+  dir.create(save.dir, recursive = TRUE, showWarnings = FALSE)
+  
+  if (inherits(data, c("ExpressionSet", "ExpressionFeatureSet"))) {
+    E <- Biobase::exprs(data)
+    metadata <- Biobase::pData(data)
+    genes <- Biobase::fData(data)
+  } else {
+    E <- data$E
+    metadata <- data$targets
+    genes <- data$genes
+  }
+  
+  rownames(E) <- genes$Symbol
+  colnames(E) <- metadata$sample
+  
+  out <- data.frame(genes, E, check.names = F, row.names = NULL)
+  utils::write.table(
+    out,
+    file = file.path(save.dir, save.name),
+    row.names = TRUE,
+    sep = "\t",
+    quote = FALSE
+  )
+  invisible(file.path(save.dir, save.name))
+}
+
+background_correction <- function(raw_data) {
   supplier <- get_supplier(raw_data)
   if (isTRUE(attr(raw_data, "preprocessing_done"))) {
     message("Skipping background correction, as data is already preprocessed (.chp)")
@@ -1244,44 +1337,11 @@ background_correction <- function(raw_data, annotate = T, clean.genes = T, condi
   else {
     stop("Background correction not implemented for class ", paste(class(raw_data), collapse=", "))
   }
-  if (annotate)
-    background_corrected <- annotate_data(background_corrected)
-    if (clean.genes) background_corrected <- clean_genes(background_corrected)
-    if (save.view) {
-      if (is.null(save.dir)) stop("'save.dir' needs to be set.")
-      dir.create(save.dir, recursive = TRUE, showWarnings = FALSE)
-      if (inherits(background_corrected, c("ExpressionSet", "ExpressionFeatureSet"))) {
-        E <- Biobase::exprs(background_corrected)
-        metadata <- Biobase::pData(background_corrected)
-        genes <- Biobase::fData(background_corrected)
-      } else {
-        E <- background_corrected$E
-        metadata <- background_corrected$targets
-        genes <- background_corrected$genes
-      }
-      accession <- unique(trimws(as.character(metadata[["accession"]])))
-      accession <- accession[!is.na(accession) & nzchar(accession)]
-      
-      rownames(E) <- genes$Symbol
-      colnames(E) <- metadata$sample
-
-      output_file <- file.path(
-        save.dir,
-        paste0(accession, "_background_corr_data.tsv")
-      )
-
-      utils::write.table(
-        E,
-        file = output_file,
-        row.names = TRUE,
-        sep = "\t",
-        quote = FALSE
-      )
-    }
+  
   background_corrected
 }
 
-normalization <- function(raw_data, annotate = T, clean.genes = T, condition_col = "combined_condition", save.view = F, save.dir = NULL) {
+normalization <- function(raw_data) {
   if (isTRUE(attr(raw_data, "preprocessing_done"))) {
     message("Skipping background correction, as data is already preprocessed (.chp)")
     return (annotate_data(raw_data))
@@ -1330,40 +1390,7 @@ normalization <- function(raw_data, annotate = T, clean.genes = T, condition_col
   else {
     stop("Normalization not implemented for class ", paste(class(raw_data), collapse=", "))
   }
-  if (annotate)
-    data <- annotate_data(data)
-    if (clean.genes) data <- clean_genes(data)
-    if (save.view) {
-      if (is.null(save.dir)) stop("'save.dir' needs to be set.")
-      dir.create(save.dir, recursive = TRUE, showWarnings = FALSE)
-      if (inherits(data, c("ExpressionSet", "ExpressionFeatureSet"))) {
-        E <- Biobase::exprs(data)
-        metadata <- Biobase::pData(data)
-        genes <- Biobase::fData(data)
-      } else {
-        E <- data$E
-        metadata <- data$targets
-        genes <- data$genes
-      }
-      accession <- unique(trimws(as.character(metadata[["accession"]])))
-      accession <- accession[!is.na(accession) & nzchar(accession)]
-      
-      rownames(E) <- genes$Symbol
-      colnames(E) <- metadata$sample
-
-      output_file <- file.path(
-        save.dir,
-        paste0(accession, "_norm_data.tsv")
-      )
-
-      utils::write.table(
-        E,
-        file = output_file,
-        row.names = TRUE,
-        sep = "\t",
-        quote = FALSE
-      )
-    }
+  
   data
 }
 
@@ -2057,7 +2084,7 @@ run_dea <- function(
 
   if (is.null(contrast_str)) {
     if (nlevels(group) != 2L) stop("Require 2 group levels for automatic contrast detection.")
-    lcontrast_str <- c(
+    contrast_str <- c(
       group_key$group_raw[1L],
       group_key$group_raw[2L]
     )
@@ -2165,6 +2192,103 @@ run_dea <- function(
     results = results
   )
 }
+
+collapse_duplicate_genes <- function(data, symbol_col = "Symbol", method=c("mean", "median", "max_mean"), verbose=T) {
+  method <- match.arg(method)
+  is_eset <- inherits(data, c("ExpressionSet", "ExpressionFeatureSet"))
+  is_elist <- inherits(data, c("EList", "EListRaw"))
+  if (!is_eset && !is_elist) stop("Unsupported object class")
+  
+  if (is_eset) {
+    E <- Biobase::exprs(data)
+    genes <- Biobase::fData(data)
+  } else {
+    E <- data$E
+    genes <- data$genes
+  }
+  
+  symbols <- trimws(as.character(genes[[symbol_col]]))
+  valid_symbol <- !is.na(symbols) & nzchar(symbols)
+  
+  E <- E[valid_symbol, , drop=F]
+  genes <- genes[valid_symbol, , drop=F]
+  symbols <- symbols[valid_symbol]
+  
+  probe_ids <- rownames(E)
+  if (is.null(probe_ids)) {
+    probe_ids <- as.character(seq_len(nrow(E)))
+    rownames(E) <- probe_ids
+  }
+  
+  split_idx <- split(seq_len(nrow(E)), symbols)
+  n_probes <- lengths(split_idx)
+  
+  if (method == "median") {
+    collapsed_E <- t(vapply(split_idx, function(i) apply(E[i, , drop = F], 2L, stats::median, na.rm = T),
+                            numeric(ncol)))
+    colnames(collapsed_E) <- colnames(E)
+  } else if (method == "mean") {
+    collapsed_E <- limma::avereps(E, ID=symbols)
+  }else if (method =="max_mean") {
+    mean_expression <- rowMeans(E, na.rm = T)
+    selected_idx <- vapply(split_idx, function(i) {i[which.max(mean_expression[i])]}, integer(1))
+    collapsed_E <- E[selected_idx, , drop = F]
+    rownames(collapsed_E) <- names(selected_idx)
+  }
+  
+  gene_order <- rownames(collapsed_E)
+  
+  representative_idx <- vapply(gene_order, function(symbol) {
+    idx <- split_idx[[symbol]]
+    if (length(idx) == 1L) return(idx)
+    if (method == "max_mean") return(idx[which.max(rowMeans(E[idx, , drop=F], na.rm = T))])
+    idx[which.max(rowMeansE[idx, , drop = F], na.rm = T)]
+  }, integer(1))
+  collapsed_genes <- genes[representative_idx, , drop = F]
+  collapsed_genes[[symbol_col]] <- gene_order
+  collapsed_genes$n_probes_collapsed <- uname(n_probes[gene_order])
+  collapsed_genes$source_probes <- vapply(gene_order, function (symbol) {
+    paste(probe_ids[split_idx[[symbol]]], collapse = ";")
+  }, character(1))
+  
+  rownames(collapsed_genes) <- gene_order
+  
+  audit <- data.frame(
+    Symbol =  gene_order,
+    n_probes = unname(n_probes[gene_order]),
+    source_probes = collapsed_genes$source_probes,
+    representative_probes = probe_ids[representative_idx],
+    aggregation_method = method,
+    stringsAsFactors = F,
+    row.names = gene_order
+  )
+  
+  if (is_eset) {
+    collapsed <- Biobase::ExpressionSet(
+      assayData = collapsed_E,
+      phenoData = Biobase::phenoData(data),
+      featureData = Biobase::AnnotatedDataFrame(collapsed_genes)
+    )
+  } else {
+    collapsed <- data
+    collapsed$E <- collapsed_E
+    collapsed$genes <- collapsed_genes
+    collapsed$other <- NULL
+  }
+  if (verbose) {
+    message(
+      "Collapsed ", nrow(E), " probe-level features to ",
+      nrow(collapsed_E), " unique gene symbols using '", method, "'.\n",
+      "Genes represented by >1 probe: ", sum(n_probes > 1L), "."
+    )
+  }
+  
+  attr(collapsed, "gene_collapse_audit") <- collapse_audit
+  attr(collapsed, "gene_collapse_method") <- method
+  attr(collapsed, "feature_level") <- "gene"
+  
+  collapsed
+} 
 
 `%||%` <- function(a, b) if (is.null(a)) b else a
 
