@@ -1,4 +1,5 @@
 source("code/microarray_functions.R")
+#source("C:\\Users\\jonas\\OneDrive\\Desktop\\gitrepos\\ma_seminar\\code\\microarray_functions.R")
 
 #dataset_accessions <- c(
 #  "GSE152884",#
@@ -228,41 +229,41 @@ contrasts = list(
     ),
     GSE168149 = list( #Factor: cell_type
       c("||||||classical_monocytes|Ctrl", "||||||intermediate_monocytes|Ctrl"),
-      c("||||||classical_monocytes|Ctrl", "||||||non-classical_moncytes|Ctrl"),
+      c("||||||classical_monocytes|Ctrl", "||||||non-classical_monocytes|Ctrl"),
       c("||||||classical_monocytes|Ctrl", "||||||classical_monocytes|MI"),
       c("||||||classical_monocytes|Ctrl", "||||||intermediate_monocytes|MI"),
-      c("||||||classical_monocytes|Ctrl", "||||||non-classical_moncytes|MI"),
+      c("||||||classical_monocytes|Ctrl", "||||||non-classical_monocytes|MI"),
       c("||||||classical_monocytes|Ctrl", "||||||classical_monocytes|sCAD"),
       c("||||||classical_monocytes|Ctrl", "||||||intermediate_monocytes|sCAD"),
-      c("||||||classical_monocytes|Ctrl", "||||||non-classical_moncytes|sCAD"),
-      c("||||||intermediate_monocytes|Ctrl", "||||||non-classical_moncytes|Ctrl"),
+      c("||||||classical_monocytes|Ctrl", "||||||non-classical_monocytes|sCAD"),
+      c("||||||intermediate_monocytes|Ctrl", "||||||non-classical_monocytes|Ctrl"),
       c("||||||intermediate_monocytes|Ctrl", "||||||classical_monocytes|MI"),
       c("||||||intermediate_monocytes|Ctrl", "||||||intermediate_monocytes|MI"),
-      c("||||||intermediate_monocytes|Ctrl", "||||||non-classical_moncytes|MI"),
+      c("||||||intermediate_monocytes|Ctrl", "||||||non-classical_monocytes|MI"),
       c("||||||intermediate_monocytes|Ctrl", "||||||classical_monocytes|sCAD"),
       c("||||||intermediate_monocytes|Ctrl", "||||||intermediate_monocytes|sCAD"),
-      c("||||||intermediate_monocytes|Ctrl", "||||||non-classical_moncytes|sCAD"),
-      c("||||||non-classical_moncytes|Ctrl", "||||||classical_monocytes|MI"),
-      c("||||||non-classical_moncytes|Ctrl", "||||||intermediate_monocytes|MI"),
-      c("||||||non-classical_moncytes|Ctrl", "||||||non-classical_moncytes|MI"),
-      c("||||||non-classical_moncytes|Ctrl", "||||||classical_monocytes|sCAD"),
-      c("||||||non-classical_moncytes|Ctrl", "||||||intermediate_monocytes|sCAD"),
-      c("||||||non-classical_moncytes|Ctrl", "||||||non-classical_moncytes|sCAD"),
+      c("||||||intermediate_monocytes|Ctrl", "||||||non-classical_monocytes|sCAD"),
+      c("||||||non-classical_monocytes|Ctrl", "||||||classical_monocytes|MI"),
+      c("||||||non-classical_monocytes|Ctrl", "||||||intermediate_monocytes|MI"),
+      c("||||||non-classical_monocytes|Ctrl", "||||||non-classical_monocytes|MI"),
+      c("||||||non-classical_monocytes|Ctrl", "||||||classical_monocytes|sCAD"),
+      c("||||||non-classical_monocytes|Ctrl", "||||||intermediate_monocytes|sCAD"),
+      c("||||||non-classical_monocytes|Ctrl", "||||||non-classical_monocytes|sCAD"),
       c("||||||classical_monocytes|MI", "||||||intermediate_monocytes|MI"),
-      c("||||||classical_monocytes|MI", "||||||non-classical_moncytes|MI"),
+      c("||||||classical_monocytes|MI", "||||||non-classical_monocytes|MI"),
       c("||||||classical_monocytes|MI", "||||||classical_monocytes|sCAD"),
       c("||||||classical_monocytes|MI", "||||||intermediate_monocytes|sCAD"),
-      c("||||||classical_monocytes|MI", "||||||non-classical_moncytes|sCAD"),
-      c("||||||intermediate_monocytes|MI", "||||||non-classical_moncytes|MI"),
+      c("||||||classical_monocytes|MI", "||||||non-classical_monocytes|sCAD"),
+      c("||||||intermediate_monocytes|MI", "||||||non-classical_monocytes|MI"),
       c("||||||intermediate_monocytes|MI", "||||||classical_monocytes|sCAD"),
       c("||||||intermediate_monocytes|MI", "||||||intermediate_monocytes|sCAD"),
-      c("||||||intermediate_monocytes|MI", "||||||non-classical_moncytes|sCAD"),
-      c("||||||non-classical_moncytes|MI", "||||||classical_monocytes|sCAD"),
-      c("||||||non-classical_moncytes|MI", "||||||intermediate_monocytes|sCAD"),
-      c("||||||non-classical_moncytes|MI", "||||||non-classical_moncytes|sCAD"),
-      c("||||||classical_moncytes|sCAD", "||||||intermediate_monocytes|sCAD"),
-      c("||||||classical_moncytes|sCAD", "||||||non-classical_moncytes|sCAD"),
-      c("||||||intermediate_monocytes|sCAD", "||||||non-classical_moncytes|sCAD")
+      c("||||||intermediate_monocytes|MI", "||||||non-classical_monocytes|sCAD"),
+      c("||||||non-classical_monocytes|MI", "||||||classical_monocytes|sCAD"),
+      c("||||||non-classical_monocytes|MI", "||||||intermediate_monocytes|sCAD"),
+      c("||||||non-classical_monocytes|MI", "||||||non-classical_monocytes|sCAD"),
+      c("||||||classical_monocytes|sCAD", "||||||intermediate_monocytes|sCAD"),
+      c("||||||classical_monocytes|sCAD", "||||||non-classical_monocytes|sCAD"),
+      c("||||||intermediate_monocytes|sCAD", "||||||non-classical_monocytes|sCAD")
     ),
     GSE89858 = list(
       c("m|0|chow||Apob-/-, Ldlt-/-||", "m|6|chow||Apob-/-, Ldlt-/-||"),
@@ -305,6 +306,9 @@ contrasts = list(
       c("|||LPS(24h)|WT||", "||||Lrx-d-/-||"),
       c("|||LPS(24h)|WT||", "|||LPS(24h)|Lrx-d-/-||"),
       c("||||Lrx-d-/-||", "|||LPS(24h)|Lrx-d-/-||")
+    ),
+    GSE66624 = list(
+      c("|||Ctrl|WT||", "|||Ctrl|V3+||")
     )
 )
 
@@ -325,7 +329,7 @@ for (ds in dataset_accessions) {
   data1 <- clean_genes(data1)
   data1 <- collapse_duplicate_genes(
     data1,
-    symbol_col = "Symbol",
+    symbol_col = if (gse %in% c("GSE59421", "GSE137580", "GSE205119", "GSE99188", "GSE137582", "GSE89858")) "GeneName"  else "Symbol",
     method = "mean"
   )
   save_expression_matrix(data1, save.dir = "/usr/local/storage/data_microarray/background_corrected", save.name = paste0(ds, "_background_corr_data.tsv"))
@@ -334,7 +338,7 @@ for (ds in dataset_accessions) {
   data2 <- clean_genes(data2)
   data2 <- collapse_duplicate_genes(
     data2,
-    symbol_col = "Symbol",
+    symbol_col = if (gse %in% c("GSE59421", "GSE137580", "GSE205119", "GSE99188", "GSE137582", "GSE89858")) "GeneName"  else "Symbol",
     method = "mean"
   )
   save_expression_matrix(data2, save.dir = paste0("/usr/local/storage/data_microarray/normalized"), save.name = paste0(ds, "_norm_data.tsv"))
@@ -346,7 +350,7 @@ for (ds in dataset_accessions) {
     data2$targets
     }
   available_conditions <- unique(
-    trimws(as.character(metadata[["combined_condition"]]))
+    trimws(as.character(metadata[[if (ds %in% exceptions) "Other" else "combined_condition"]]))
     )
 
   requested_conditions <- unique(unlist(dataset_contrasts, use.names = FALSE))
@@ -380,14 +384,16 @@ for (ds in dataset_accessions) {
         contrast_str = contrast_expression, 
         covariate_cols = covariates[[ds]],
         save.view = T, 
-        save.dir = paste0("/usr/local/storage/data_microarray/dea"))
+        save.dir = paste0("/usr/local/storage/data_microarray/dea")
+        )
     } else {
       dea <- run_dea(
         data2, 
         "combined_condition", 
         contrast_str = contrast_expression, 
-        save.view = T, 
-        save.dir = paste0("/usr/local/storage/data_microarray/dea"))
+        save.view = T,
+        save.dir = paste0("/usr/local/storage/data_microarray/dea")
+       )
     }
   }
 }
