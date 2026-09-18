@@ -49,7 +49,7 @@ for dir in base_dir.glob("*_D_logfc"):
         miRNA_logfc_candidated = determine_gene_list(miRNA_values, ["--", "-", "+", "++"])
         if miRNA_logfc_candidated:
             rel_views[dir.name[:-8]]["logfc"] = miRNA_logfc_candidated
-            rel_views[dir.name[:-8]]["Overlap"] = set(miRNA_logfc_candidated).intersection(set(rel_views[dir.name[:-8]]['padj']))
+            rel_views[dir.name[:-8]]["Overlap"] = list(set(miRNA_logfc_candidated).intersection(set(rel_views[dir.name[:-8]]['padj'])))
             logger.info("{} contains results with higher logfc. Overlap with significant results: {}".format(dir.name[:-8], len(rel_views[dir.name[:-8]]["Overlap"])))
 
 logger.info("Saving results in /home/f/flor/relevant_views.json")
