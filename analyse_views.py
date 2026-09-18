@@ -44,13 +44,13 @@ for dir in base_dir.glob("*_D_padj"):
         rel_views[dir.name[:-7]] = {"padj": miRNA_padj_candidated}
 
 for dir in base_dir.glob("*_D_logfc"):
-    if dir.name[:-7] in rel_views.keys():
+    if dir.name[:-8] in rel_views.keys():
         miRNA_values = read_fuzzy_values(dir / "fuzzy_values")
         miRNA_logfc_candidated = determine_gene_list(miRNA_values, ["--", "-", "+", "++"])
         if miRNA_logfc_candidated:
-            rel_views[dir.name[:-7]]["logfc"] = miRNA_logfc_candidated
-            rel_views[dir.name[:-7]]["Overlap"] = set(miRNA_logfc_candidated).intersection(set(rel_views[dir.name[:-7]]['padj']))
-            logger.info("{} contains results with higher logfc. Overlap with significant results: {}".format(dir.name[:-7], len(rel_views[dir.name[:-7]]["Overlap"])))
+            rel_views[dir.name[:-8]]["logfc"] = miRNA_logfc_candidated
+            rel_views[dir.name[:-8]]["Overlap"] = set(miRNA_logfc_candidated).intersection(set(rel_views[dir.name[:-8]]['padj']))
+            logger.info("{} contains results with higher logfc. Overlap with significant results: {}".format(dir.name[:-8], len(rel_views[dir.name[:-8]]["Overlap"])))
 
 logger.info("Saving results in /home/f/flor/relevant_views.json")
 with open('/home/f/flor/relevant_views.json', 'w') as fp:
