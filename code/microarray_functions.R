@@ -2171,7 +2171,7 @@ run_dea <- function(
 
     output_file <- file.path(
       save.dir,
-      paste0(paste(accession, sep = "_"), "_", safe_contrast_label, "_dea.tsv")
+      paste0(paste(accession, collapse = "_"), "_", safe_contrast_label, "_dea.tsv")
     )
     utils::write.table(
       results,
