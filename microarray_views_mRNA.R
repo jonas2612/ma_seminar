@@ -11,7 +11,7 @@ dataset_accessions <- c(
   'GSE135626',
   'GSE137578',
   'GSE137581',
-  'GSE143162',
+  #'GSE143162', Gene name could not be determined
   'GSE15062',
   'GSE152625',
   'GSE152884',
