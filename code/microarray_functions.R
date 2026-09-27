@@ -430,7 +430,7 @@ make_annotation_df <- function(meta_df, file_paths) {
 }
 
 make_targets <- function(meta_df, file_paths, data_dir, col = "FileName") {
-  treatment <- apply(meta_df[, c("age", "diet", "medication", "KO", "symptomatic_atherosclerosis", "Other"), drop=F], 1, function(row) {paste(row, collapse="|")})
+  treatment <- apply(meta_df[, c("age", "diet", "medication", "KO", "dose", "duration", "Hutchinson-Gilford", "diabetis", "CAD", "CVD", "cell_type", "location", "symptomatic_atherosclerosis"), drop=F], 1, function(row) {paste(row, collapse="|")})
   gerep <- as.integer(factor(treatment, levels=unique(treatment)))
   paths <- file.path(data_dir, basename(file_paths))
   df <- data.frame(setNames(list(paths), col),
