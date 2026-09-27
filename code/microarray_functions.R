@@ -11,8 +11,19 @@ library(tibble)
 
 read_metadata <- function(metadata_file_path) {
   if (!file.exists(metadata_file_path)) stop("Metadata file not found")
-  meta <- read.delim(metadata_file_path, sep="\t", stringsAsFactors = F,
-                     check.names = F, row.names = 4)
+  meta <- readxl::read_excel(
+    path = metadata_file_path,
+    sheet = sheet,
+    col_types = "text",
+    .name_repair = "minimal"
+  )
+  meta <- as.data.frame(
+    meta,
+    stringsAsFactors = FALSE,
+    check.names = FALSE
+  )
+  row_ids <- meta[[4]]
+  rownames(meta) <- row_ids
   meta
 }
 
