@@ -30,7 +30,7 @@ dataset_accessions <- c(
   #'GSE39264',
   #'GSE42419',
   #'GSE46097',
-  'GSE48006',
+  #'GSE48006',
   'GSE49519',
   'GSE50250',
   'GSE50251',
