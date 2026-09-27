@@ -1,7 +1,7 @@
 # For miRNA datasets
 source("code/microarray_functions.R")
 
-dataset_accession <- c(
+dataset_accessions <- c(
   "GSE111794",
   "GSE137582",
   "GSE137580",
