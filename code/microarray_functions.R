@@ -9,7 +9,7 @@ library(GEOquery)
 library(ArrayExpress)
 library(tibble)
 
-read_metadata <- function(metadata_file_path) {
+read_metadata <- function(metadata_file_path, sheet = 1) {
   if (!file.exists(metadata_file_path)) stop("Metadata file not found")
   meta <- readxl::read_excel(
     path = metadata_file_path,
