@@ -75,7 +75,7 @@ for (ds in dataset_accessions) {
     symbol_col = if (ds %in% c("GSE137580", "GSE205119", "GSE137582", "GSE130486", "GSE74755", "GSE45433")) "GeneName"  else "Symbol",
     method = "mean"
   )
-  save_expression_matrix(data1, save.dir = "/usr/local/storage/data_microarray/260927_background_corrected", save.name = paste0(ds, "_background_corr_data.tsv"))
+  save_expression_matrix(data1, save.dir = "/usr/local/storage/data_microarray/260927_background_corrected_miRNA", save.name = paste0(ds, "_background_corr_data.tsv"))
   data2 <- normalization(raw_data)
   data2 <- annotate_data(data2)
   data2 <- clean_genes(data2)
@@ -84,7 +84,7 @@ for (ds in dataset_accessions) {
     symbol_col = if (ds %in% c("GSE137580", "GSE205119", "GSE137582", "GSE130486", "GSE74755", "GSE45433")) "GeneName"  else "Symbol",
     method = "mean"
   )
-  save_expression_matrix(data2, save.dir = paste0("/usr/local/storage/data_microarray/260927_normalized"), save.name = paste0(ds, "_norm_data.tsv"))
+  save_expression_matrix(data2, save.dir = paste0("/usr/local/storage/data_microarray/260927_normalized_miRNA"), save.name = paste0(ds, "_norm_data.tsv"))
   
   dataset_contrasts <- contrasts[[ds]]
   dea_groups <- dea_col[[ds]]
@@ -192,7 +192,7 @@ for (ds in dataset_accessions) {
       contrast_str = condition_pair,
       covariate_cols = covariate_cols,
       save.view = TRUE,
-      save.dir = "/usr/local/storage/data_microarray/260927_dea"
+      save.dir = "/usr/local/storage/data_microarray/260927_dea_miRNA"
     )
   }
 }
