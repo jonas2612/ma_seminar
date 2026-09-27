@@ -3,16 +3,16 @@ source("code/microarray_functions.R")
 
 dataset_accessions <- c(
   #'GSE10000', dataloading
-  'GSE101126',
-  'GSE111782',
+  #'GSE101126',
+  #'GSE111782',
   #'GSE113969', Identification of Probe names
-  'GSE12261',
-  'GSE13139',
-  'GSE135626',
-  'GSE137578',
-  'GSE137581',
+  #'GSE12261',
+  #'GSE13139',
+  #'GSE135626',
+  #'GSE137578',
+  #'GSE137581',
   #'GSE143162', Gene name could not be determined
-  'GSE15062',
+  #'GSE15062',
   #'GSE152625', too little replicated
   'GSE152884',
   'GSE15914',
