@@ -66,7 +66,7 @@ for (ds in dataset_accessions) {
   message("\n==============================")
   message("Working on ", ds)
   message("==============================")
-  raw_data <- load_data(paste0("/usr/local/storage/data_microarray/raw_data/", ds), "/home/f/flor/metadata_all_samples_new.txt", sep = if (ds == "GSE72180") "_" else ".")
+  raw_data <- load_data(paste0("/usr/local/storage/data_microarray/raw_data/", ds), "/home/f/flor/metadata_all_samples_new.xlsx", sep = if (ds == "GSE72180") "_" else ".")
   data1 <- background_correction(raw_data)
   data1 <- annotate_data(data1)
   data1 <- clean_genes(data1)
