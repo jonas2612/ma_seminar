@@ -21,8 +21,8 @@ dataset_accessions <- c(
   #'GSE205120',
   #'GSE20739',
   #'GSE24487',
-  'GSE26295',
-  'GSE28117',
+  #'GSE26295',
+  #'GSE28117', DEA not full rank
   'GSE29903',
   'GSE30004',
   'GSE34262',
