@@ -184,14 +184,7 @@ contrasts <- list(
   GSE48006 = list(
     c("miRCtrl", "miR-21-3p"),
     c("miRCtrl", "miR-27a-5p"),
-    c("miRCtrl", "miR-21-3p"),
-    c("miRCtrl", "miR-27a-5p"),
     c("miR-21-3p", "miR-27a-5p"),
-    c("miR-21-3p", "miR-21-3p"),
-    c("miR-21-3p", "miR-27a-5p"),
-    c("miR-27a-5p", "miR-21-3p"),
-    c("miR-27a-5p", "miR-27a-5p"),
-    c("miR-21-3p", "miR-27a-5p")
   ),
   GSE49519 = list(
     c("WT", "STAT1-/-", "medication"),
