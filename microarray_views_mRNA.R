@@ -27,9 +27,9 @@ dataset_accessions <- c(
   #'GSE30004',
   #'GSE34262',
   #'GSE35676', Data loading
-  'GSE39264',
-  'GSE42419',
-  'GSE46097',
+  #'GSE39264',
+  #'GSE42419',
+  #'GSE46097',
   'GSE48006',
   'GSE49519',
   'GSE50250',
