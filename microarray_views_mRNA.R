@@ -3,39 +3,39 @@ source("code/microarray_functions.R")
 
 dataset_accessions <- c(
   #'GSE10000', dataloading
-  #'GSE101126',
-  #'GSE111782',
+  'GSE101126',
+  'GSE111782',
   #'GSE113969', Identification of Probe names
-  #'GSE12261',
-  #'GSE13139',
-  #'GSE135626',
-  #'GSE137578',
-  #'GSE137581',
+  'GSE12261',
+  'GSE13139',
+  'GSE135626',
+  'GSE137578',
+  'GSE137581',
   #'GSE143162', Gene name could not be determined
-  #'GSE15062',
+  'GSE15062',
   #'GSE152625', too little replicated
-  #'GSE152884',
-  #'GSE15914',
-  #'GSE17556',
-  #'GSE20060',
-  #'GSE205120',
-  #'GSE20739',
-  #'GSE24487',
-  #'GSE26295',
+  'GSE152884',
+  'GSE15914',
+  'GSE17556',
+  'GSE20060',
+  'GSE205120',
+  'GSE20739',
+  'GSE24487',
+  'GSE26295',
   #'GSE28117', DEA not full rank
   #'GSE29903', Data loading
-  #'GSE30004',
-  #'GSE34262',
+  'GSE30004',
+  'GSE34262',
   #'GSE35676', Data loading
-  #'GSE39264',
-  #'GSE42419',
-  #'GSE46097',
+  'GSE39264',
+  'GSE42419',
+  'GSE46097',
   #'GSE48006',DEA
   #'GSE49519',Data loading
-  #'GSE50250',
-  #'GSE50251',
-  #'GSE66624',
-  #'GSE67182',
+  'GSE50250',
+  'GSE50251',
+  'GSE66624',
+  'GSE67182',
   #'GSE70126', Data Loading
   'GSE72180',
   'GSE72633'
