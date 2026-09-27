@@ -836,7 +836,6 @@ load_data <- function(data_dir, metadata_file_path, sep = ".", other.columns = "
     "Agilent-035430 mouse miRNA array",
     "Agilent-050340 Custom Rat miRNA Microarray",
     "Agilent-070155 Mouse miRNA Microarray",
-    "Agilent-070156 Human_miRNA_V21.0_Microarray",
     "Agilent-070156 Human miRNA"
     
   )) {
