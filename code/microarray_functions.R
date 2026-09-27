@@ -2116,6 +2116,7 @@ run_dea <- function(
         )
       )
     }
+  }
 
   group_key <- data.frame(
     group_raw = levels(group),
