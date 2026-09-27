@@ -13,7 +13,7 @@ dataset_accessions <- c(
   'GSE137581',
   #'GSE143162', Gene name could not be determined
   'GSE15062',
-  'GSE152625',
+  #'GSE152625', too little replicated
   'GSE152884',
   'GSE15914',
   'GSE17556',
