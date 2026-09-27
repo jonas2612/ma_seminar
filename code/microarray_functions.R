@@ -2072,29 +2072,50 @@ run_dea <- function(
   if (nlevels(group)<2L) stop("DEA needs at least 2 levels.")
   
   group_counts <- table(group)
-  if (any(group_counts < 2L)) {
-    too_small <- group_counts[group_counts < 2L]
+  if (
+    is.character(contrast_str) &&
+    length(contrast_str) == 2L
+  ) {
+    contrast_conditions <- trimws(as.character(contrast_str))
     
-    stop(
-      "DEA requires at least 2 samples per condition.\n",
-      "Insufficient condition(s):\n - ",
-      paste(
-        names(too_small),
-        sprintf(
-          "(%d sample%s)",
-          too_small,
-          ifelse(too_small == 1L, "", "s")
-        ),
-        collapse = "\n - "
-      ),
-      "\nAll condition counts:\n - ",
-      paste(
-        names(group_counts),
-        sprintf("(%d)", group_counts),
-        collapse = "\n - "
+    if (anyNA(contrast_conditions) || any(!nzchar(contrast_conditions))) {
+      stop(
+        "`contrast_str` contains missing or empty condition labels."
+      )
+    }
+    
+    contrast_counts <- table(
+      factor(
+        group_values,
+        levels = contrast_conditions
       )
     )
-  }
+    
+    if (any(contrast_counts < 2L)) {
+      too_small <- contrast_counts[contrast_counts < 2L]
+      
+      stop(
+        "DEA requires at least 2 samples in each requested contrast condition.\n",
+        "Insufficient condition(s):\n - ",
+        paste(
+          names(too_small),
+          sprintf(
+            "(%d sample%s)",
+            too_small,
+            ifelse(too_small == 1L, "", "s")
+          ),
+          collapse = "\n - "
+        ),
+        "\nRequested contrast:\n - ",
+        contrast_conditions[2L], " vs ", contrast_conditions[1L], "\n",
+        "Counts in requested contrast:\n - ",
+        paste(
+          names(contrast_counts),
+          sprintf("(%d)", contrast_counts),
+          collapse = "\n - "
+        )
+      )
+    }
 
   group_key <- data.frame(
     group_raw = levels(group),
