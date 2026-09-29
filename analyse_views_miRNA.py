@@ -53,5 +53,5 @@ for dir in base_dir.glob("*_D_logfc"):
             logger.info("{} contains results with higher logfc. Overlap with significant results: {}".format(dir.name[:-8], len(rel_views[dir.name[:-8]]["Overlap"])))
 
 logger.info("Saving results in /home/f/flor/relevant_views_miRNA.json")
-with open('/home/f/flor/relevant_views.json', 'w') as fp:
+with open('/home/f/flor/relevant_views_miRNA.json', 'w') as fp:
     json.dump(rel_views, fp)
