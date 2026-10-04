@@ -9,24 +9,24 @@ dataset_accessions <- c(
 
 for (ds in dataset_accessions) download_microarray_data(ds, "/usr/local/storage/data_microarray/raw_data")
 
-contrasts <- list(
-  GSE105449=list(
-    c("Ctrl", "after_medication", "CAD", "CVD", "age", "sex")
-  ),
-  GSE168149=list(
-    c("TRUE", "FALSE", "symptomatic_atherosclerosis", "cell_type"),
-    c("TRUE", "FALSE", "CAD", "cell_type")
-  ),
-  GSE89858=list(
-    c("chow", "HFD", "duration")
+  contrasts <- list(
+    GSE105449=list(
+      c("Ctrl", "after_medication", "CAD", "CVD", "age", "sex")
+    ),
+    GSE168149=list(
+      c("TRUE", "FALSE", "symptomatic_atherosclerosis", "cell_type"),
+      c("TRUE", "FALSE", "CAD", "cell_type")
+    ),
+    GSE89858=list(
+      c("chow", "HFD", "duration")
+    )
   )
-)
-
-dea_col <- list(
-  GSE105449=c("medication"),
-  GSE168149=c("CAD", "symptomatic_atherosclerosis"),
-  GSE89858=c("diet")
-)
+  
+  dea_col <- list(
+    GSE105449=c("medication"),
+    GSE168149=c("CAD", "symptomatic_atherosclerosis"),
+    GSE89858=c("diet")
+  )
 
 
 for (ds in dataset_accessions) {
@@ -39,7 +39,7 @@ for (ds in dataset_accessions) {
   data1 <- clean_genes(data1)
   data1 <- collapse_duplicate_genes(
     data1,
-    symbol_col = if (ds %in% c("GSE105449", "GSE89858")) "GeneName"  else "Symbol",
+    symbol_col = if (ds %in% c("GSE89858")) "GeneName"  else "Symbol",
     method = "mean"
   )
   save_expression_matrix(data1, save.dir = "/usr/local/storage/data_microarray/261004_background_corrected_mewis", save.name = paste0(ds, "_background_corr_data.tsv"))
@@ -48,7 +48,7 @@ for (ds in dataset_accessions) {
   data2 <- clean_genes(data2)
   data2 <- collapse_duplicate_genes(
     data2,
-    symbol_col = if (ds %in% c("GSE105449", "GSE89858")) "GeneName"  else "Symbol",
+    symbol_col = if (ds %in% c("GSE89858")) "GeneName"  else "Symbol",
     method = "mean"
   )
   save_expression_matrix(data2, save.dir = paste0("/usr/local/storage/data_microarray/261004_normalized_mewis"), save.name = paste0(ds, "_norm_data.tsv"))
